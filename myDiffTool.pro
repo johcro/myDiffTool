@@ -21,3 +21,5 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     diffdialog.ui
+
+QMAKE_LIBDIR += /usr/lib64
