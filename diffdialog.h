@@ -70,6 +70,9 @@ private slots:
 
     void on_tableView_2_doubleClicked(const QModelIndex &index);
 
+    void findPrevious();
+    void findNext();
+
 private:
     Ui::diffDialog *ui;
     QStandardItemModel *model1;

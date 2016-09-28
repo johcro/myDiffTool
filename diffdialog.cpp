@@ -326,6 +326,16 @@ void diffDialog::on_tableView_2_doubleClicked(const QModelIndex &index)
     }
 }
 
+void diffDialog::findPrevious() {
+    const QString seltext = ui->textEdit->textCursor().selectedText();
+    ui->textEdit->find(seltext, QTextDocument::FindBackward | QTextDocument::FindWholeWords);
+}
+
+void diffDialog::findNext() {
+    const QString seltext = ui->textEdit->textCursor().selectedText();
+    ui->textEdit->find(seltext, QTextDocument::FindWholeWords);
+}
+
 // --------------------------------------------------------------------------------------
 // Privat
 // --------------------------------------------------------------------------------------
