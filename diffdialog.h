@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <QStringList>
 #include <QTableWidget>
-#include <QRegularExpression>
+#include <QRegExp>
 #include <QSyntaxHighlighter>
 #include <QtCore>
 #include <QtGui>
@@ -28,7 +28,7 @@ public:
     Highlighter(QTextDocument *parent = 0);
 
 protected:
-    void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
+    void highlightBlock(const QString &text) /*Q_DECL_OVERRIDE*/;
 
 private:
     struct HighlightingRule
@@ -90,7 +90,7 @@ private:
     QString fileNameOne;
     QString fileNameTwo;
 
-    int shaColumn, fileNameColumn, lineColumn = -1;
+    int shaColumn, fileNameColumn, lineColumn;
     QMap<int, int> autoMap;
 };
 

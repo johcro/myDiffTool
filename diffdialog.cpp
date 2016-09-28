@@ -7,7 +7,10 @@ diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
     QDialog(parent),
     ui(new Ui::diffDialog),
     fileNameOne(filename1),
-    fileNameTwo(filename2)
+    fileNameTwo(filename2),
+    shaColumn(-1),
+    fileNameColumn(-1),
+    lineColumn(-1)
 {
     ui->setupUi(this);
     //this->showMaximized();
@@ -217,7 +220,7 @@ void diffDialog::on_connectButton_clicked()
 void diffDialog::on_deleteButton_clicked()
 {
     QModelIndex currentIndex = ui->tableView_3->selectionModel()->currentIndex();
-    ui->tableView_3->selectionModel()->clearCurrentIndex();
+    ui->tableView_3->selectionModel()->clear();
     modelListRules->removeRow(currentIndex.row());
 }
 
@@ -391,7 +394,7 @@ void diffDialog::setAndConfigureView(QTableView *tabView, QStandardItemModel *mo
 
 void diffDialog::createConfigureAndSetRuleView(QTableView *tabView)
 {
-    ui->lineEdit->setPlaceholderText("Add comments...");
+//    ui->lineEdit->setPlaceholderText("Add comments...");
 
     modelListRules = new QStandardItemModel(0, 9, this);
     tabView->setModel(modelListRules);
