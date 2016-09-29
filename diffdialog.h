@@ -93,7 +93,8 @@ private:
     QString fileNameOne;
     QString fileNameTwo;
 
-    int shaColumn, fileNameColumn, lineColumn;
+    int shaColumn1, fileNameColumn1, lineColumn1;
+    int shaColumn2, fileNameColumn2, lineColumn2;
     QMap<int, int> autoMap;
 };
 
