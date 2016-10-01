@@ -8,12 +8,9 @@ diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
     ui(new Ui::diffDialog),
     fileNameOne(filename1),
     fileNameTwo(filename2),
-    shaColumn1(-1),
-    fileNameColumn1(-1),
-    lineColumn1(-1),
-    shaColumn2(-1),
-    fileNameColumn2(-1),
-    lineColumn2(-1)
+    shaColumn(-1),
+    fileNameColumn(-1),
+    lineColumn(-1)
 {
     ui->setupUi(this);
     //this->showMaximized();
@@ -143,7 +140,7 @@ void diffDialog::on_connectButton_clicked()
     if (row1.isEmpty()){
         // Filename
         index = modelListRules->index(insertRow-1, 0, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), fileNameColumn2, QModelIndex()) ) );
+        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), fileNameColumn, QModelIndex()) ) );
 
         //SHA
         index = modelListRules->index(insertRow-1, 1, QModelIndex());
@@ -159,11 +156,11 @@ void diffDialog::on_connectButton_clicked()
     } else {
         // Filename
         index = modelListRules->index(insertRow-1, 0, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), fileNameColumn1, QModelIndex()) ) );
+        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), fileNameColumn, QModelIndex()) ) );
 
         //SHA
         index = modelListRules->index(insertRow-1, 1, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), shaColumn1, QModelIndex()) ) );
+        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), shaColumn, QModelIndex()) ) );
 
         // First file error msg
         index = modelListRules->index(insertRow-1, 2, QModelIndex());
@@ -171,7 +168,7 @@ void diffDialog::on_connectButton_clicked()
 
         // Row
         index = modelListRules->index(insertRow-1, 3, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), lineColumn1, QModelIndex()) ) );
+        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), lineColumn, QModelIndex()) ) );
     }
 
     if (row2.isEmpty()){
@@ -189,7 +186,7 @@ void diffDialog::on_connectButton_clicked()
     } else {
         // SHA
         index = modelListRules->index(insertRow-1, 4, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), shaColumn1, QModelIndex()) ) );
+        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), shaColumn, QModelIndex()) ) );
 
         // Second file error msg
         index = modelListRules->index(insertRow-1, 5, QModelIndex());
@@ -197,7 +194,7 @@ void diffDialog::on_connectButton_clicked()
 
         // Row
         index = modelListRules->index(insertRow-1, 6, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), lineColumn2, QModelIndex()) ) );
+        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), lineColumn, QModelIndex()) ) );
     }
 
     // Comment
@@ -280,8 +277,8 @@ static int linePosition(const QString &str, int lineToOpen) {
 
 void diffDialog::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    QString fileToOpen = model1->data( model1->index(index.row(), fileNameColumn1)).toString();
-    int lineToOpen = model1->data( model1->index(index.row(), lineColumn1)).toInt();
+    QString fileToOpen = model1->data( model1->index(index.row(), fileNameColumn)).toString();
+    int lineToOpen = model1->data( model1->index(index.row(), lineColumn)).toInt();
 
     if ( fileToOpen.isEmpty() )
     {
@@ -302,8 +299,9 @@ void diffDialog::on_tableView_doubleClicked(const QModelIndex &index)
 
 void diffDialog::on_tableView_2_doubleClicked(const QModelIndex &index)
 {
-    QString fileToOpen = model2->data( model1->index(index.row(), fileNameColumn2)).toString();
-    int lineToOpen = model2->data( model1->index(index.row(), lineColumn2)).toInt();
+    QString fileToOpen = model2->data( model2->index(index.row(), fileNameColumn)).toString();
+    QString lineToOpen = model2->data( model2->index(index.row(), lineColumn)).toString();
+
 
     if ( fileToOpen.isEmpty() )
     {
@@ -311,14 +309,20 @@ void diffDialog::on_tableView_2_doubleClicked(const QModelIndex &index)
         return;
     }
 
-    QFile f(fileToOpen);
-    if (f.open(QFile::ReadOnly | QFile::Text)) {
-        const QString fileData(f.readAll());
-        ui->textEdit->setText(fileData);
-        QTextCursor tc = ui->textEdit->textCursor();
-        tc.setPosition(linePosition(fileData,lineToOpen));
-        ui->textEdit->setTextCursor(tc);
-        ui->textEdit->setFocus();
+    QProcess *process = new QProcess(this);
+    process->setEnvironment(QProcess::systemEnvironment());
+    QString compFilePath = QDir::homePath() + fileToOpen;
+
+    // Select program to open.
+    QString programToStart = QFileDialog::getOpenFileName(this, tr("Select program"), "/home", tr("Executable file (*.exe)"));
+    programToStart.replace("/","\\");
+    QStringList argList; argList << compFilePath << QString("-n" + lineToOpen);
+
+//    qDebug() << "Executable to open:" << programToStart << "options: " << argList;
+
+    if (process->startDetached(programToStart, argList)){
+        process->waitForStarted(5000); // wait max 5sec
+        qDebug() << "Error code:" << process->errorString();
     }
 }
 
@@ -433,7 +437,7 @@ void diffDialog::createConfigureAndSetRuleView(QTableView *tabView)
 
 void diffDialog::autoMapSuggestions()
 {
-    if (shaColumn1 == -1 || fileNameColumn1 == -1 || lineColumn1 == -1 || shaColumn2 == -1 || fileNameColumn2 == -1 || lineColumn2 == -1)
+    if (shaColumn == -1 || fileNameColumn == -1 || lineColumn == -1)
     {
         QMessageBox::information(this, tr("Error"), tr("Files does not contain SHA, path or line identifiers. Please specify specify files with the right format."));
     }
@@ -447,18 +451,18 @@ void diffDialog::autoMapSuggestions()
     {
         for (int rowmodel2 = 0; rowmodel2 < model2->rowCount(); rowmodel2++)
         {
-            if (model1->data( model1->index(rowmodel1, fileNameColumn1, QModelIndex()) ).toString().isEmpty() ||
-                model2->data( model2->index(rowmodel2, fileNameColumn2, QModelIndex()) ).toString().isEmpty()){
+            if (model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString().isEmpty() ||
+                model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString().isEmpty()){
                 // Do nothing the row is empty
             } else {
-                if ( model1->data( model1->index(rowmodel1, shaColumn1, QModelIndex()) ).toString() ==
-                     model2->data( model2->index(rowmodel2, shaColumn2, QModelIndex()) ).toString() &&
-                     model1->data( model1->index(rowmodel1, fileNameColumn1, QModelIndex()) ).toString() ==
-                     model2->data( model2->index(rowmodel2, fileNameColumn2, QModelIndex()) ).toString() &&
-                    ( model1->data( model1->index(rowmodel1, lineColumn1, QModelIndex()) ).toInt() >
-                      model2->data( model2->index(rowmodel2, lineColumn2, QModelIndex()) ).toInt() - 100 &&
-                      model1->data( model1->index(rowmodel1, lineColumn1, QModelIndex()) ).toInt() <
-                      model2->data( model2->index(rowmodel2, lineColumn2, QModelIndex()) ).toInt() + 100)
+                if ( model1->data( model1->index(rowmodel1, shaColumn, QModelIndex()) ).toString() ==
+                     model2->data( model2->index(rowmodel2, shaColumn, QModelIndex()) ).toString() &&
+                     model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString() ==
+                     model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString() &&
+                    ( model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt() >
+                      model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() - 100 &&
+                      model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt() <
+                      model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() + 100)
                       )
                 {
                     // Debuging mapping suggestions
@@ -490,8 +494,8 @@ void diffDialog::autoMapSuggestions()
             myRGB = 230;
         else
             myRGB = 160;
-        model1->setData( model1->index(k, fileNameColumn1, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
-        model2->setData( model2->index(autoMap[k], fileNameColumn1, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
+        model1->setData( model1->index(k, fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
+        model2->setData( model2->index(autoMap[k], fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
         i++;
     }
 }
@@ -501,7 +505,7 @@ void diffDialog::autoMapSuggestions()
 void diffDialog::syncFileNamesToScroll(QStandardItemModel *inModel1, QStandardItemModel *inModel2)
 {
 
-    if (shaColumn1 == -1 || fileNameColumn1 == -1 || lineColumn1 == -1 || shaColumn2 == -1 || fileNameColumn2 == -1 || lineColumn2 == -1)
+    if (shaColumn == -1 || fileNameColumn == -1 || lineColumn == -1)
     {
         QMessageBox::information(this, tr("Error"), tr("Files does not contain SHA, path or line identifiers. Please specify files with the right format."));
         return;
@@ -521,25 +525,25 @@ void diffDialog::syncFileNamesToScroll(QStandardItemModel *inModel1, QStandardIt
 //        qDebug() << "Data m2:" << inModel2->data( inModel2->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString();
 
 
-       int tempEqual = QString::compare(inModel1->data( inModel1->index(pairM1.first, fileNameColumn1, QModelIndex()) ).toString(),
-                                        inModel2->data( inModel2->index(pairM2.first, fileNameColumn2, QModelIndex()) ).toString(),
+       int tempEqual = QString::compare(inModel1->data( inModel1->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString(),
+                                        inModel2->data( inModel2->index(pairM2.first, fileNameColumn, QModelIndex()) ).toString(),
                                         Qt::CaseInsensitive);
 
-       QString firstFileName = (tempEqual <= 0) ? inModel1->data( inModel1->index(pairM1.first, fileNameColumn1, QModelIndex()) ).toString() :
-                                                  inModel2->data( inModel2->index(pairM2.first, fileNameColumn2, QModelIndex()) ).toString();
+       QString firstFileName = (tempEqual <= 0) ? inModel1->data( inModel1->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString() :
+                                                  inModel2->data( inModel2->index(pairM2.first, fileNameColumn, QModelIndex()) ).toString();
 
 
-        while(firstFileName == inModel1->data( inModel1->index(pairM1.second, fileNameColumn1, QModelIndex()) ).toString())
+        while(firstFileName == inModel1->data( inModel1->index(pairM1.second, fileNameColumn, QModelIndex()) ).toString())
         {
             pairM1.second++;
-            if (pairM1.second > inModel1->rowCount())
+            if (pairM1.second > inModel1->columnCount())
                 break;
         }
 
-        while(firstFileName == inModel2->data( inModel2->index(pairM2.second, fileNameColumn2, QModelIndex()) ).toString())
+        while(firstFileName == inModel2->data( inModel2->index(pairM2.second, fileNameColumn, QModelIndex()) ).toString())
         {
             pairM2.second++;
-            if (pairM2.second > inModel2->rowCount())
+            if (pairM2.second > inModel2->columnCount())
                 break;
         }
 
@@ -584,12 +588,9 @@ void diffDialog::populateColumnIdentifyersByReExp()
     QRegExp shaRe("\\b[0-9a-f]{40}\\b");
     QRegExp fileRe("^(\\/[^\\/ ]*)+\\/?$");
     QRegExp lineRe("^[0-9]+$");
-    shaColumn1 = getColumnByRegExp(model1, shaRe);
-    fileNameColumn1 = getColumnByRegExp(model1, fileRe);
-    lineColumn1 = getColumnByRegExp(model1, lineRe);
-    shaColumn2 = getColumnByRegExp(model2, shaRe);
-    fileNameColumn2 = getColumnByRegExp(model2, fileRe);
-    lineColumn2 = getColumnByRegExp(model2, lineRe);
+    shaColumn = getColumnByRegExp(model1, shaRe);
+    fileNameColumn = getColumnByRegExp(model1, fileRe);
+    lineColumn = getColumnByRegExp(model1, lineRe);
 }
 
 
