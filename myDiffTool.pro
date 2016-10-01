@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    diffdialog.cpp
+    diffdialog.cpp \
+    resultsdata.cpp
 
 HEADERS  += mainwindow.h \
-    diffdialog.h
+    diffdialog.h \
+    resultsdata.h
 
 FORMS    += mainwindow.ui \
     diffdialog.ui

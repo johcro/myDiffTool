@@ -20,6 +20,8 @@ namespace Ui {
 class diffDialog;
 }
 
+class ResultsData;
+
 class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -75,25 +77,21 @@ private slots:
 
 private:
     Ui::diffDialog *ui;
-    QStandardItemModel *model1;
-    QStandardItemModel *model2;
     QStandardItemModel *modelListRules;
 
-    void readFilesToLineList(QTextStream &in, QList<QStringList> &list);
-    void writeTxtDataToModel(QStandardItemModel *module, QList<QStringList> &list);
-    int getColumnByRegExp(QStandardItemModel *module, QRegExp  &re);
-    void setAndConfigureView(QTableView *tabView, QStandardItemModel *module);
+    void setAndConfigureView(QTableView *tabView, QStandardItemModel *model);
     void createConfigureAndSetRuleView(QTableView *tabView);
     void autoMapSuggestions();
-    void syncFileNamesToScroll(QStandardItemModel *inModel1, QStandardItemModel *inModel2);
-    void populateColumnIdentifyersByReExp();
+    void syncFileNamesToScroll();
 
     Highlighter *highlighter;
 
-    QString fileNameOne;
-    QString fileNameTwo;
+    ResultsData *resultsData1;
+    ResultsData *resultsData2;
 
-    int shaColumn, fileNameColumn, lineColumn;
+    const int shaColumn;
+    const int fileNameColumn;
+    const int lineColumn;
     QMap<int, int> autoMap;
 };
 

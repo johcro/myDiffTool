@@ -1,16 +1,15 @@
 #include "diffdialog.h"
 #include "ui_diffdialog.h"
+#include "resultsdata.h"
 #include <QDebug>
 
 
 diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
     QDialog(parent),
     ui(new Ui::diffDialog),
-    fileNameOne(filename1),
-    fileNameTwo(filename2),
-    shaColumn(-1),
-    fileNameColumn(-1),
-    lineColumn(-1)
+    shaColumn(0),
+    fileNameColumn(1),
+    lineColumn(2)
 {
     ui->setupUi(this);
     //this->showMaximized();
@@ -36,60 +35,22 @@ diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
 
     // ------------------------------------------------------------------------------------------------
 
-
-    /* Debug retreavel of filename from main window
-    qDebug() << "fileNameOne:" << fileNameOne << ", filename1:" << filename1;
-    qDebug() << "fileNameTwo:" << fileNameTwo << ", filename2:" << filename2;
-    */
-    QFile QFileOne(fileNameOne);
-    QFile QFileTwo(fileNameTwo);
-
-
-    if (!QFileOne.open(QIODevice::ReadOnly))
-    {
-        // TODO - Handle error
-        //ui->textBrowser->setText(QFileOne.errorString()); // testBrowser removed, thus do not work any more
-    }
-    else if (!QFileTwo.open(QIODevice::ReadOnly))
-    {
-        // TODO - Handle error
-        //ui->textBrowser_2->setText(QFileOne.errorString()); // testBrowser removed, thus do not work any more
-    }
-    else
-    {
-        // Declaration of variables
-        QTextStream in1(&QFileOne), in2(&QFileTwo);
-        QList<QStringList> list1, list2;
-
-        // Reading files line by line
-        readFilesToLineList(in1, list1);
-        readFilesToLineList(in2, list2);
-
-        // Create models
-        model1 = new QStandardItemModel( list1.size(), list1[0].size(), this);
-        model2 = new QStandardItemModel( list2.size(), list2[0].size(), this);
-
-
-        // Populating module sorted on names
-        writeTxtDataToModel(model1, list1);
-        writeTxtDataToModel(model2, list2);
-
-        populateColumnIdentifyersByReExp();
+    resultsData1 = new ResultsData(filename1);
+    resultsData2 = new ResultsData(filename2);
 
         // Sync rows between models
-        syncFileNamesToScroll(model1, model2);
+        syncFileNamesToScroll();
 
         // Handle the automapping suggestions
         autoMapSuggestions();
 
         // Set and config input files to views
-        setAndConfigureView(ui->tableView, model1);
-        setAndConfigureView(ui->tableView_2, model2);
+        setAndConfigureView(ui->tableView, resultsData1->model);
+        setAndConfigureView(ui->tableView_2, resultsData2->model);
 
         // Connect scroll bars !WORKS BUT NOT SO GOOD!
         QObject::connect(ui->tableView_2->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->tableView->verticalScrollBar(), SLOT(setValue(int)));
         QObject::connect(ui->tableView->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->tableView_2->verticalScrollBar(), SLOT(setValue(int)));
-    }
 
     highlighter = new Highlighter(ui->textEdit->document());
 }
@@ -99,6 +60,8 @@ diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
 diffDialog::~diffDialog()
 {
     delete ui;
+    delete resultsData1;
+    delete resultsData2;
 }
 
 // --------------------------------------------------------------------------------------
@@ -107,7 +70,7 @@ diffDialog::~diffDialog()
 
 
 void diffDialog::on_connectButton_clicked()
-{
+{/*
     QModelIndexList indexListOne = ui->tableView->selectionModel()->selectedIndexes();
     QModelIndexList indexListTwo = ui->tableView_2->selectionModel()->selectedIndexes();
     if (( indexListOne.isEmpty() && indexListTwo.isEmpty() ) ||( indexListOne.size() > 1 || indexListTwo.size() > 1 )) {
@@ -209,7 +172,7 @@ void diffDialog::on_connectButton_clicked()
     ui->tableView->selectionModel()->clear();
     ui->tableView_2->selectionModel()->clear();
     ui->lineEdit->clear();
-
+*/
 
     // Debug
 //    qDebug() << "Row1:" << row1 << "Row2:" << row2;
@@ -218,14 +181,14 @@ void diffDialog::on_connectButton_clicked()
 
 
 void diffDialog::on_deleteButton_clicked()
-{
+{/*
     QModelIndex currentIndex = ui->tableView_3->selectionModel()->currentIndex();
     ui->tableView_3->selectionModel()->clear();
     modelListRules->removeRow(currentIndex.row());
-}
+*/}
 
 void diffDialog::on_exportButton_clicked()
-{
+{/*
 
     int r = modelListRules->rowCount();
     int c = modelListRules->columnCount();
@@ -262,7 +225,7 @@ void diffDialog::on_exportButton_clicked()
         }
         file.flush();
         file.close();
-    }
+    }*/
 }
 
 static int linePosition(const QString &str, int lineToOpen) {
@@ -275,10 +238,9 @@ static int linePosition(const QString &str, int lineToOpen) {
     return linenr == lineToOpen ? pos : 0;
 }
 
-void diffDialog::on_tableView_doubleClicked(const QModelIndex &index)
-{
-    QString fileToOpen = model1->data( model1->index(index.row(), fileNameColumn)).toString();
-    int lineToOpen = model1->data( model1->index(index.row(), lineColumn)).toInt();
+void diffDialog::openResult(const QModelIndex &index, const ResultsData &resultsData) {
+    const QString &fileToOpen = resultsData.list[index.row()].filename;
+    int lineToOpen = resultsData.list[index.row()].line.toInt();
 
     if ( fileToOpen.isEmpty() )
     {
@@ -297,33 +259,14 @@ void diffDialog::on_tableView_doubleClicked(const QModelIndex &index)
     }
 }
 
+void diffDialog::on_tableView_doubleClicked(const QModelIndex &index)
+{
+    openResult(index, *resultsData1);
+}
+
 void diffDialog::on_tableView_2_doubleClicked(const QModelIndex &index)
 {
-    QString fileToOpen = model2->data( model2->index(index.row(), fileNameColumn)).toString();
-    QString lineToOpen = model2->data( model2->index(index.row(), lineColumn)).toString();
-
-
-    if ( fileToOpen.isEmpty() )
-    {
-        QMessageBox::information(this, tr("Warning"), tr("No filename selected!"));
-        return;
-    }
-
-    QProcess *process = new QProcess(this);
-    process->setEnvironment(QProcess::systemEnvironment());
-    QString compFilePath = QDir::homePath() + fileToOpen;
-
-    // Select program to open.
-    QString programToStart = QFileDialog::getOpenFileName(this, tr("Select program"), "/home", tr("Executable file (*.exe)"));
-    programToStart.replace("/","\\");
-    QStringList argList; argList << compFilePath << QString("-n" + lineToOpen);
-
-//    qDebug() << "Executable to open:" << programToStart << "options: " << argList;
-
-    if (process->startDetached(programToStart, argList)){
-        process->waitForStarted(5000); // wait max 5sec
-        qDebug() << "Error code:" << process->errorString();
-    }
+    openResult(index, *resultsData2);
 }
 
 void diffDialog::findPrevious() {
@@ -340,44 +283,6 @@ void diffDialog::findNext() {
 // Privat
 // --------------------------------------------------------------------------------------
 
-void diffDialog::readFilesToLineList(QTextStream &in, QList<QStringList> &list)
-{
-    QString line;
-    do
-    {
-        line = in.readLine();
-        list << line.split(":");
-    }while(!line.isNull());
-}
-
-void diffDialog::writeTxtDataToModel(QStandardItemModel *model, QList<QStringList> &list)
-{
-    for ( int row = 0; row < list.size(); ++row )
-    {
-        for ( int column = 0; column < list[row].size(); ++column )
-        {
-            QModelIndex index = model->index(row, column, QModelIndex());
-            model->setData(index, list[row][column]);
-        }
-    }
-    model->sort(1);
-
-}
-
-
-int diffDialog::getColumnByRegExp(QStandardItemModel *model, QRegExp &re)
-{
-    for ( int column = 0; column < model->columnCount(); ++column )
-    {
-//        qDebug() << "list[0][column]:" << model->data( model->index(0, column, QModelIndex()) ).toString();
-        if ( re.indexIn( model->data( model->index(0, column, QModelIndex()) ).toString() ) != -1 )
-        {
-//            qDebug() << "Found one! Column:" << column;
-            return column;
-        }
-    }
-    return -1;
-}
 
 void diffDialog::setAndConfigureView(QTableView *tabView, QStandardItemModel *model)
 {
@@ -423,11 +328,11 @@ void diffDialog::createConfigureAndSetRuleView(QTableView *tabView)
 
     modelListRules->setHeaderData(0, Qt::Horizontal, "File name");
     modelListRules->setHeaderData(1, Qt::Horizontal, "SHA 1");
-    modelListRules->setHeaderData(2, Qt::Horizontal, fileNameOne);
+    modelListRules->setHeaderData(2, Qt::Horizontal, resultsData1->fileName);
     modelListRules->setHeaderData(3, Qt::Horizontal, "Row");
 
     modelListRules->setHeaderData(4, Qt::Horizontal, "SHA 2");
-    modelListRules->setHeaderData(5, Qt::Horizontal, fileNameTwo);
+    modelListRules->setHeaderData(5, Qt::Horizontal, resultsData2->fileName);
     modelListRules->setHeaderData(6, Qt::Horizontal, "Row");
     modelListRules->setHeaderData(7, Qt::Horizontal, "Comments");
     modelListRules->setHeaderData(8, Qt::Horizontal, "TP/FP");
@@ -437,16 +342,7 @@ void diffDialog::createConfigureAndSetRuleView(QTableView *tabView)
 
 void diffDialog::autoMapSuggestions()
 {
-    if (shaColumn == -1 || fileNameColumn == -1 || lineColumn == -1)
-    {
-        QMessageBox::information(this, tr("Error"), tr("Files does not contain SHA, path or line identifiers. Please specify specify files with the right format."));
-    }
-    else
-    {
-//            qDebug() << "Found all requiered columns!";
-//            qDebug() << "shaColumn:" << shaColumn << " fileNameColumn:" << fileNameColumn << " lineColumn:" << lineColumn;
-    }
-
+/*
     for (int rowmodel1 = 0; rowmodel1 < model1->rowCount(); rowmodel1++)
     {
         for (int rowmodel2 = 0; rowmodel2 < model2->rowCount(); rowmodel2++)
@@ -465,18 +361,6 @@ void diffDialog::autoMapSuggestions()
                       model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() + 100)
                       )
                 {
-                    // Debuging mapping suggestions
-                    /*
-                    qDebug() << "Found one!";
-                    qDebug() << "rowmodel1: " << rowmodel1 << " rowmodel2: " << rowmodel2;
-                    qDebug() << "SHA 1: " << model1->data( model1->index(rowmodel1, shaColumn, QModelIndex()) ).toString();
-                    qDebug() << "SHA 2: " << model2->data( model2->index(rowmodel2, shaColumn, QModelIndex()) ).toString();
-                    qDebug() << "Filename 1:" << model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString();
-                    qDebug() << "Filename 2:" << model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString();
-                    qDebug() << "row 1: " << model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt();
-                    qDebug() << "row 2: " << model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt();
-                    */
-
                     if (autoMap.contains(rowmodel1)){
                         //TODO: Check if we have a closer match
                     } else {
@@ -498,23 +382,14 @@ void diffDialog::autoMapSuggestions()
         model2->setData( model2->index(autoMap[k], fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
         i++;
     }
+*/
 }
 
 
 
-void diffDialog::syncFileNamesToScroll(QStandardItemModel *inModel1, QStandardItemModel *inModel2)
+void diffDialog::syncFileNamesToScroll()
 {
-
-    if (shaColumn == -1 || fileNameColumn == -1 || lineColumn == -1)
-    {
-        QMessageBox::information(this, tr("Error"), tr("Files does not contain SHA, path or line identifiers. Please specify files with the right format."));
-        return;
-    }
-    else
-    {
-//        qDebug() << "Found all requiered columns!";
-//        qDebug() << "shaColumn:" << shaColumn << " fileNameColumn:" << fileNameColumn << " lineColumn:" << lineColumn;
-    }
+/*
 
     QPair<int, int> pairM1(0,0), pairM2(0,0);
     while (pairM1.first <= inModel1->rowCount())
@@ -578,19 +453,7 @@ void diffDialog::syncFileNamesToScroll(QStandardItemModel *inModel1, QStandardIt
             pairM2.second = pairM2.second;
         }
     }
-}
-
-
-void diffDialog::populateColumnIdentifyersByReExp()
-{
-    // Find column for SHA, filename and line
-    // Assuming files have same format
-    QRegExp shaRe("\\b[0-9a-f]{40}\\b");
-    QRegExp fileRe("^(\\/[^\\/ ]*)+\\/?$");
-    QRegExp lineRe("^[0-9]+$");
-    shaColumn = getColumnByRegExp(model1, shaRe);
-    fileNameColumn = getColumnByRegExp(model1, fileRe);
-    lineColumn = getColumnByRegExp(model1, lineRe);
+    */
 }
 
 
