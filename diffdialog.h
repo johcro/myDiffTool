@@ -82,7 +82,6 @@ private:
     void setAndConfigureView(QTableView *tabView, QStandardItemModel *model);
     void createConfigureAndSetRuleView(QTableView *tabView);
     void autoMapSuggestions();
-    void syncFileNamesToScroll();
     void openResult(const QModelIndex &index, const ResultsData &resultsData);
 
     Highlighter *highlighter;

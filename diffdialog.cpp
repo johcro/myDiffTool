@@ -12,10 +12,6 @@ diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
     lineColumn(2)
 {
     ui->setupUi(this);
-    //this->showMaximized();
-    //qDebug() << "Window width:" << this->width();
-
-    // PREP WINDOW ------------------------------------------------------------------------------------
 
     // Tool tips
     ui->closeButton->setToolTip(tr("Close the comparison window."));
@@ -31,27 +27,22 @@ diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
     ui->tableView->verticalHeader()->setVisible(false);
     ui->tableView_2->verticalHeader()->setVisible(false);
 
-    createConfigureAndSetRuleView(ui->tableView_3);
-
-    // ------------------------------------------------------------------------------------------------
-
     resultsData1 = new ResultsData(filename1);
     resultsData2 = new ResultsData(filename2);
+    ResultsData::syncFileNames(resultsData1, resultsData2);
 
-        // Sync rows between models
-        syncFileNamesToScroll();
+    //createConfigureAndSetRuleView(ui->tableView_3);
 
-        // Handle the automapping suggestions
-        autoMapSuggestions();
+    // Handle the automapping suggestions
+    //autoMapSuggestions();
 
-        // Set and config input files to views
-        setAndConfigureView(ui->tableView, resultsData1->model);
-        setAndConfigureView(ui->tableView_2, resultsData2->model);
+    // Set and config input files to views
+    setAndConfigureView(ui->tableView, resultsData1->model);
+    setAndConfigureView(ui->tableView_2, resultsData2->model);
 
-        // Connect scroll bars !WORKS BUT NOT SO GOOD!
-        QObject::connect(ui->tableView_2->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->tableView->verticalScrollBar(), SLOT(setValue(int)));
-        QObject::connect(ui->tableView->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->tableView_2->verticalScrollBar(), SLOT(setValue(int)));
-
+    // Connect scroll bars !WORKS BUT NOT SO GOOD!
+    QObject::connect(ui->tableView_2->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->tableView->verticalScrollBar(), SLOT(setValue(int)));
+    QObject::connect(ui->tableView->verticalScrollBar(), SIGNAL(valueChanged(int)), ui->tableView_2->verticalScrollBar(), SLOT(setValue(int)));
     highlighter = new Highlighter(ui->textEdit->document());
 }
 
@@ -384,78 +375,6 @@ void diffDialog::autoMapSuggestions()
     }
 */
 }
-
-
-
-void diffDialog::syncFileNamesToScroll()
-{
-/*
-
-    QPair<int, int> pairM1(0,0), pairM2(0,0);
-    while (pairM1.first <= inModel1->rowCount())
-    {
-        // Debugg
-//        qDebug() << "row count:" << inModel1->rowCount();
-//        qDebug() << "Data m1:" << inModel1->data( inModel1->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString();
-//        qDebug() << "Data m2:" << inModel2->data( inModel2->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString();
-
-
-       int tempEqual = QString::compare(inModel1->data( inModel1->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString(),
-                                        inModel2->data( inModel2->index(pairM2.first, fileNameColumn, QModelIndex()) ).toString(),
-                                        Qt::CaseInsensitive);
-
-       QString firstFileName = (tempEqual <= 0) ? inModel1->data( inModel1->index(pairM1.first, fileNameColumn, QModelIndex()) ).toString() :
-                                                  inModel2->data( inModel2->index(pairM2.first, fileNameColumn, QModelIndex()) ).toString();
-
-
-        while(firstFileName == inModel1->data( inModel1->index(pairM1.second, fileNameColumn, QModelIndex()) ).toString())
-        {
-            pairM1.second++;
-            if (pairM1.second > inModel1->columnCount())
-                break;
-        }
-
-        while(firstFileName == inModel2->data( inModel2->index(pairM2.second, fileNameColumn, QModelIndex()) ).toString())
-        {
-            pairM2.second++;
-            if (pairM2.second > inModel2->columnCount())
-                break;
-        }
-
-        // Debugg
- //       qDebug() << "tempEqual:" << tempEqual;
- //       qDebug() << "firstFileName:" << firstFileName;
-//        qDebug() << "pair m1:" << pairM1 << " pair m2:" << pairM2;
-
-        // Appending rows to sync scroll
-        if (pairM1.second - pairM1.first > pairM2.second - pairM2.first)
-        {
-            inModel2->insertRows(pairM2.second, (pairM1.second - pairM1.first) - (pairM2.second - pairM2.first));
-            pairM1.first = pairM1.second;
-            pairM1.second = pairM1.second;
-            pairM2.first = pairM1.second;
-            pairM2.second = pairM1.second;
-        } else if (pairM1.second - pairM1.first < pairM2.second - pairM2.first)
-        {
-            if (pairM1.second == pairM1.first)
-                inModel1->insertRows(pairM1.first, (pairM2.second - pairM2.first) - (pairM1.second - pairM1.first));
-            else
-                inModel1->insertRows(pairM1.second, (pairM2.second - pairM2.first) - (pairM1.second - pairM1.first));
-            pairM1.first = pairM2.second;
-            pairM1.second = pairM2.second;
-            pairM2.first = pairM2.second;
-            pairM2.second = pairM2.second;
-        } else
-        {
-            pairM1.first = pairM2.second;
-            pairM1.second = pairM2.second;
-            pairM2.first = pairM2.second;
-            pairM2.second = pairM2.second;
-        }
-    }
-    */
-}
-
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)

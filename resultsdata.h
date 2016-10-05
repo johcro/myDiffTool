@@ -20,12 +20,14 @@ public:
         QString filename;
         QString line;
         QString column;
+        QString severity;
         QString text;
         QString id;
     };
     QList<Line> list;
     const QString fileName;
     QStandardItemModel *model;
+    static void syncFileNames(ResultsData *rd1, ResultsData *rd2);
 };
 
 #endif // RESULTSDATA_H
