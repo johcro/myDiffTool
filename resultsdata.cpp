@@ -20,33 +20,55 @@ bool ResultsData::load(const QString &fileName) {
         return false;
 
     // Lint: 1234:/home/danielm/file1.c:237: Signed-unsigned mix with relational [574]
-    QRegExp rx1("^([0-9a-f]{40}):([^:]+):(\\d+):(.+)\\[([0-9]+)\\]$");
+    QRegExp rxLintWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(.+)\\[([0-9]+)\\]$");
+    QRegExp rxLintWithoutSha("^(/repo/[^:]+):(\\d+):(.+)\\[([0-9]+)\\]$");
 
     // Clang: 1234:/home/danielm/file1.c:14:12: warning: unused variable 'x' [-Wunused-variable]
-    QRegExp rx2("^([0-9a-f]{40}):([^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
+    QRegExp rxClangWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
+    QRegExp rxClangWithoutSha("^(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
 
     QTextStream in(&f);
     while (!in.atEnd()) {
         const QString line = in.readLine();
-        if (rx1.exactMatch(line)) {
+        if (rxLintWithSha.exactMatch(line)) {
             struct Line newLine;
-            newLine.sha      = rx1.cap(1);
-            newLine.filename = rx1.cap(2);
-            newLine.line     = rx1.cap(3);
+            newLine.sha      = rxLintWithSha.cap(1);
+            newLine.filename = rxLintWithSha.cap(2);
+            newLine.line     = rxLintWithSha.cap(3);
             newLine.column.clear();
             newLine.severity.clear();
-            newLine.text     = rx1.cap(4);
-            newLine.id       = rx1.cap(5);
+            newLine.text     = rxLintWithSha.cap(4);
+            newLine.id       = rxLintWithSha.cap(5);
             list.append(newLine);
-        } else if (rx2.exactMatch(line)) {
+        } else if (rxLintWithoutSha.exactMatch(line)) {
             struct Line newLine;
-            newLine.sha      = rx2.cap(1);
-            newLine.filename = rx2.cap(2);
-            newLine.line     = rx2.cap(3);
-            newLine.column   = rx2.cap(4);
-            newLine.severity = rx2.cap(5);
-            newLine.text     = rx2.cap(6);
-            newLine.id       = rx2.cap(7);
+            newLine.sha.clear();
+            newLine.filename = rxLintWithoutSha.cap(1);
+            newLine.line     = rxLintWithoutSha.cap(2);
+            newLine.column.clear();
+            newLine.severity.clear();
+            newLine.text     = rxLintWithoutSha.cap(3);
+            newLine.id       = rxLintWithoutSha.cap(4);
+            list.append(newLine);
+        } else if (rxClangWithSha.exactMatch(line)) {
+            struct Line newLine;
+            newLine.sha      = rxClangWithSha.cap(1);
+            newLine.filename = rxClangWithSha.cap(2);
+            newLine.line     = rxClangWithSha.cap(3);
+            newLine.column   = rxClangWithSha.cap(4);
+            newLine.severity = rxClangWithSha.cap(5);
+            newLine.text     = rxClangWithSha.cap(6);
+            newLine.id       = rxClangWithSha.cap(7);
+            list.append(newLine);
+        } else if (rxClangWithoutSha.exactMatch(line)) {
+            struct Line newLine;
+            newLine.sha.clear();
+            newLine.filename = rxClangWithoutSha.cap(1);
+            newLine.line     = rxClangWithoutSha.cap(2);
+            newLine.column   = rxClangWithoutSha.cap(3);
+            newLine.severity = rxClangWithoutSha.cap(4);
+            newLine.text     = rxClangWithoutSha.cap(5);
+            newLine.id       = rxClangWithoutSha.cap(6);
             list.append(newLine);
         }
     }
