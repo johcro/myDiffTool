@@ -23,6 +23,7 @@ public:
         QString severity;
         QString text;
         QString id;
+        QString triage;
     };
     QList<Line> list;
     const QString fileName;

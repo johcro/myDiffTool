@@ -1,5 +1,6 @@
 #include "resultsdata.h"
 #include <QFile>
+#include <QFileInfo>
 #include <QRegExp>
 #include <QStandardItemModel>
 #include <QTextStream>
@@ -27,9 +28,15 @@ bool ResultsData::load(const QString &fileName) {
     QRegExp rxClangWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
     QRegExp rxClangWithoutSha("^(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
 
+    QRegExp rxTriage("^(TP|FP|UNKNOWN).*");
+
     QTextStream in(&f);
     while (!in.atEnd()) {
         const QString line = in.readLine();
+        if (rxTriage.exactMatch(line)) {
+            list.back().triage = line;
+            continue;
+        }
         if (rxLintWithSha.exactMatch(line)) {
             struct Line newLine;
             newLine.sha      = rxLintWithSha.cap(1);
@@ -84,16 +91,19 @@ void ResultsData::writeDataToModel()
     for ( int row = 0; row < list.size(); ++row )
     {
         QModelIndex index;
-        index = model->index(row, 0, QModelIndex());
-        model->setData(index, list[row].sha);
-        index = model->index(row, 1, QModelIndex());
-        model->setData(index, list[row].filename);
-        index = model->index(row, 2, QModelIndex());
+        int col = 0;
+        //index = model->index(row, col++, QModelIndex());
+        //model->setData(index, list[row].sha);
+        index = model->index(row, col++, QModelIndex());
+        model->setData(index, QFileInfo(list[row].filename).fileName());
+        index = model->index(row, col++, QModelIndex());
         model->setData(index, list[row].line);
-        index = model->index(row, 3, QModelIndex());
+        index = model->index(row, col++, QModelIndex());
         model->setData(index, list[row].text);
-        index = model->index(row, 4, QModelIndex());
+        index = model->index(row, col++, QModelIndex());
         model->setData(index, list[row].id);
+        index = model->index(row, col++, QModelIndex());
+        model->setData(index, list[row].triage);
     }
 }
 
