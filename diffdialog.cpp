@@ -6,10 +6,7 @@
 
 diffDialog::diffDialog(QWidget *parent, QString filename1, QString filename2) :
     QDialog(parent),
-    ui(new Ui::diffDialog),
-    shaColumn(0),
-    fileNameColumn(1),
-    lineColumn(2)
+    ui(new Ui::diffDialog)
 {
     ui->setupUi(this);
 
@@ -278,23 +275,18 @@ void diffDialog::findNext() {
 void diffDialog::setAndConfigureView(QTableView *tabView, QStandardItemModel *model)
 {
     tabView->setModel(model);
-    tabView->resizeColumnsToContents();
 
     for ( int column = 0; column < model->columnCount(); ++column )
-    {
-        //qDebug() << "Column width:" << tabView->columnWidth(column);
-        //qDebug() << "Column:" << column;
-        QRegExp shaRe("\\b[0-9a-f]{40}\\b");
-        if ( tabView->columnWidth(column) >= 100)
-        {
-            if ( shaRe.indexIn( model->data( model->index(0, column, QModelIndex()) ).toString() ) != -1 ){
-                tabView->setColumnWidth(column, 80);
-            }else{
-                tabView->setColumnWidth(column, 350);
-            }
+        tabView->setColumnWidth(column, 80);
 
-        }
-    }
+    if (ResultsData::getFilenameColumn() >= 0)
+        tabView->setColumnWidth(ResultsData::getFilenameColumn(), 200);
+    if (ResultsData::getLineColumn() >= 0)
+        tabView->setColumnWidth(ResultsData::getLineColumn(), 60);
+    if (ResultsData::getTextColumn() >= 0)
+        tabView->setColumnWidth(ResultsData::getTextColumn(), 200);
+    if (ResultsData::getTriageColumn() >= 0)
+        tabView->setColumnWidth(ResultsData::getTriageColumn(), 60);
 }
 
 

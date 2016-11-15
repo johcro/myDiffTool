@@ -29,6 +29,14 @@ public:
     const QString fileName;
     QStandardItemModel *model;
     static void syncFileNames(ResultsData *rd1, ResultsData *rd2);
+
+    static int getShaColumn() { return -1; }
+    static int getFilenameColumn() { return 0; }
+    static int getLineColumn() { return 1; }
+    static int getSeverityColumn() { return -1; }
+    static int getTextColumn() { return 2; }
+    static int getIdColumn() { return 3; }
+    static int getTriageColumn() { return 4; }
 };
 
 #endif // RESULTSDATA_H

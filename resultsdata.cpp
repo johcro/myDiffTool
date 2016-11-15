@@ -88,6 +88,12 @@ void ResultsData::writeDataToModel()
     delete model;
     model = new QStandardItemModel(list.size(), 5);
 
+    model->setHeaderData(0, Qt::Horizontal, "File name");
+    model->setHeaderData(1, Qt::Horizontal, "Line");
+    model->setHeaderData(2, Qt::Horizontal, "Text");
+    model->setHeaderData(3, Qt::Horizontal, "ID");
+    model->setHeaderData(4, Qt::Horizontal, "Triage");
+
     for ( int row = 0; row < list.size(); ++row )
     {
         QModelIndex index;

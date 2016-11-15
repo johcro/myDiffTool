@@ -89,9 +89,6 @@ private:
     ResultsData *resultsData1;
     ResultsData *resultsData2;
 
-    const int shaColumn;
-    const int fileNameColumn;
-    const int lineColumn;
     QMap<int, int> autoMap;
 };
 
