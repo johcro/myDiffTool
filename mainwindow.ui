@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>177</height>
+    <width>444</width>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
         <item>
          <widget class="QPushButton" name="pushButton_file1">
           <property name="text">
-           <string>Browse</string>
+           <string>Browse Clang</string>
           </property>
          </widget>
         </item>
@@ -42,7 +42,7 @@
         <item>
          <widget class="QPushButton" name="pushButton__file2">
           <property name="text">
-           <string>Browse</string>
+           <string>Browse Lint</string>
           </property>
          </widget>
         </item>
@@ -105,14 +105,16 @@
      </layout>
     </item>
    </layout>
+   <zorder>pushButton_3</zorder>
+   <zorder>pushButton_file1</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>544</width>
-     <height>19</height>
+     <width>444</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuClear_all">

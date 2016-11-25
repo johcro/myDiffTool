@@ -26,7 +26,7 @@ bool ResultsData::load(const QString &fileName) {
 
     // Clang: 1234:/home/danielm/file1.c:14:12: warning: unused variable 'x' [-Wunused-variable]
     QRegExp rxClangWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
-    QRegExp rxClangWithoutSha("^(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
+    QRegExp rxClangWithoutSha("^(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-?([0-9a-zA-Z\\-\\.]+)\\]$");
 
     QRegExp rxTriage("^(TP|FP|UNKNOWN).*");
 
