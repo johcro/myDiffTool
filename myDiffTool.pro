@@ -15,13 +15,16 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     diffdialog.cpp \
-    resultsdata.cpp
+    resultsdata.cpp \
+    exportdialog.cpp
 
 HEADERS  += mainwindow.h \
     diffdialog.h \
-    resultsdata.h
+    resultsdata.h \
+    exportdialog.h
 
 FORMS    += mainwindow.ui \
-    diffdialog.ui
+    diffdialog.ui \
+    exportdialog.ui
 
 QMAKE_LIBDIR += /usr/lib64

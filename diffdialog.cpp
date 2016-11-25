@@ -1,6 +1,7 @@
 #include "diffdialog.h"
 #include "ui_diffdialog.h"
 #include "resultsdata.h"
+#include "exportdialog.h"
 #include <QDebug>
 
 
@@ -55,7 +56,6 @@ diffDialog::~diffDialog()
 // --------------------------------------------------------------------------------------
 // Privat slot
 // --------------------------------------------------------------------------------------
-
 
 void diffDialog::on_connectButton_clicked()
 {/*
@@ -176,44 +176,10 @@ void diffDialog::on_deleteButton_clicked()
 */}
 
 void diffDialog::on_exportButton_clicked()
-{/*
+{
 
-    int r = modelListRules->rowCount();
-    int c = modelListRules->columnCount();
-    if (r == 0){
-        QMessageBox::information(this, tr("Error!"), tr("Nothing to save! Pleas create a new rule."));
-        return;
-    }
-
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save connections to file."), "", tr(" (*.txt);;All Files (*)"));
-
-    if (fileName.isEmpty()){
-        return;
-    } else {
-        QFile file(fileName);
-        if (!file.open(QIODevice::WriteOnly)) {
-            QMessageBox::information(this, tr("Unable to open file"),
-            file.errorString());
-            return;
-        }
-        QTextStream out(&file);
-
-        for ( int row = 0; row < r; ++row )
-        {
-            for ( int column = 0; column < c; ++column )
-            {
-                QModelIndex index = modelListRules->index(row, column, QModelIndex());
-                out << QString(modelListRules->data(index).toString());
-                if (column+1 < c){
-                    out << QString("\t");
-                } else {
-                    out << QString("\n");
-                }
-            }
-        }
-        file.flush();
-        file.close();
-    }*/
+    ExportDialog exportToFile(this, resultsData1, resultsData2);
+    exportToFile.exec();
 }
 
 static int linePosition(const QString &str, int lineToOpen) {
