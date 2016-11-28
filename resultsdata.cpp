@@ -239,3 +239,35 @@ bool ResultsData::includeLineInExport(const ResultsData::Line &ln, const QString
 
     return false;
 }
+
+QList<ResultsData::Line> ResultsData::getResultsToExport(const QString errorGroup) const
+{
+    QList<Line> ret;
+    foreach (const Line &line, list) {
+        if (!line.filename.isEmpty() && ResultsData::includeLineInExport(line, errorGroup))
+            ret.append(line);
+    }
+    return ret;
+}
+
+namespace {
+struct LessThan {
+    LessThan() {}
+    bool operator()(const ResultsData::Line &line1, const ResultsData::Line &line2) const {
+        if (line1.filename != line2.filename)
+            return line1.filename < line2.filename;
+        if (line1.line != line2.line)
+            return line1.line < line2.line;
+        if (line1.id != line2.id)
+            return line1.id < line2.id;
+        return false;
+    }
+};
+}
+
+QList<ResultsData::Line> ResultsData::sort(QList<ResultsData::Line> results)
+{
+    qSort(results.begin(), results.end(), LessThan());
+    return results;
+}
+

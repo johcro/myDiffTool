@@ -27,6 +27,8 @@ public:
     };
 
     static bool includeLineInExport(const Line &ln, const QString errorGroup);
+    QList<Line> getResultsToExport(const QString errorGroup) const;
+    static QList<Line> sort(QList<Line> results);
 
     QList<Line> list;
     const QString fileName;
