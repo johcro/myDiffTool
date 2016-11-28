@@ -14,7 +14,7 @@ class ExportDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ExportDialog(QWidget *parent = 0, ResultsData *clangResults = NULL, ResultsData *lintResults = NULL);
+    explicit ExportDialog(QWidget *parent, const ResultsData &clangResults, const ResultsData &lintResults);
     ~ExportDialog();
 
 private slots:
@@ -28,10 +28,9 @@ private:
     };
 
 
-    bool includeLineInExport(ResultsData::Line *ln);
     Ui::ExportDialog *ui;
-    QList<ResultsData::Line> clangData;
-    QList<ResultsData::Line> lintData;
+    const ResultsData &clangData;
+    const ResultsData &lintData;
     QString errorGroup;
 
 };

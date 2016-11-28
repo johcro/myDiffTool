@@ -131,3 +131,111 @@ void ResultsData::syncFileNames(ResultsData *rd1, ResultsData *rd2)
     rd1->writeDataToModel();
     rd2->writeDataToModel();
 }
+
+bool ResultsData::includeLineInExport(const ResultsData::Line &ln, const QString errorGroup)
+{
+    if (errorGroup == "All")
+    {
+        return true;
+    }
+    else if (errorGroup == "Conversion")
+    {
+        if (ln.id.contains("clang-analyzer-alpha.Conversion") ||
+            ln.id == "570" || ln.id == "573" ||
+                ln.id == "574" || ln.id == "648")
+        {
+            return true;
+        }
+    }
+    else if (errorGroup == "Declaration Not Found")
+    {
+        if (ln.id.contains("Wimplicit-function-declaration") ||
+                ln.id.contains("Wmissing-declarations") ||
+                ln.id == "746")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Loss Of Precision")
+    {
+        if (ln.id.contains("Wundefined-fixed-cast") ||
+                ln.id.contains("Wfixed-literal-promotion") ||
+                ln.id.contains("Wbitfield-constant-conversion") ||
+                ln.id == "542")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Redefined Macro")
+    {
+        if (ln.id.contains("Wunused-macro") ||
+                ln.id == "760")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Redundant Declaration")
+    {
+        if (ln.id.contains("readability-redundant-declaration") ||
+                ln.id == "762")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Shadow")
+    {
+        if (ln.id.contains("Wshadow") ||
+            ln.id == "578")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Uninitialized")
+    {
+        if (ln.id.contains("Wuninitialized") ||
+                ln.id.contains("clang-analyzer-core.uninitialized.Assign") ||
+                ln.id.contains("clang-analyzer-core.CallAndMessage") ||
+                ln.id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
+                ln.id == "530" ||
+                ln.id == "603" ||
+                ln.id == "771")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Unreachable Code")
+    {
+        if (ln.id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") ||
+                ln.id == "527")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Unused Macro")
+    {
+        if (ln.id.contains("Wunused-macro") ||
+                ln.id == "750")
+        {
+            return true;
+        }
+    }
+
+    else if (errorGroup == "Unused Value")
+    {
+        if (ln.id.contains("Wunused-variable") ||
+                ln.id.contains("Wunused-value") ||
+                ln.id == "551")
+        {
+            return true;
+        }
+    }
+
+    return false;
+}

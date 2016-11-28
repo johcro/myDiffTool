@@ -6,148 +6,18 @@
 #include <QMessageBox>
 #include "resultsdata.h"
 
-ExportDialog::ExportDialog(QWidget *parent, ResultsData *clangResults, ResultsData *lintResults) :
+ExportDialog::ExportDialog(QWidget *parent, const ResultsData &clangResults, const ResultsData &lintResults) :
     QDialog(parent),
-    ui(new Ui::ExportDialog)
+    ui(new Ui::ExportDialog),
+    clangData(clangResults),
+    lintData(lintResults)
 {
     ui->setupUi(this);
-
-    if ((clangResults == NULL) || (lintResults == NULL) )
-        return;
-
-    clangData = clangResults->list;
-    lintData = lintResults->list;
-
 }
 
 ExportDialog::~ExportDialog()
 {
     delete ui;
-}
-
-bool ExportDialog::includeLineInExport(ResultsData::Line *ln)
-{
-    bool returnData(false);
-
-    if (errorGroup == "All")
-    {
-        /* This line shall be included in export, goto next line. */
-        returnData = true;
-    }
-    else if (errorGroup == "Conversion")
-    {
-        if (ln->id.contains("clang-analyzer-alpha.Conversion") ||
-                ln->id.contains("570") || ln->id.contains("573") ||
-                ln->id.contains("574") || ln->id.contains("648"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-    else if (errorGroup == "Declaration Not Found")
-    {
-        if (ln->id.contains("Wimplicit-function-declaration") ||
-                ln->id.contains("Wmissing-declarations") ||
-                ln->id.contains("746"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Loss Of Precision")
-    {
-        if (ln->id.contains("Wundefined-fixed-cast") ||
-                ln->id.contains("Wfixed-literal-promotion") ||
-                ln->id.contains("Wbitfield-constant-conversion") ||
-                ln->id.contains("542"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Redefined Macro")
-    {
-        if (ln->id.contains("Wunused-macro") ||
-                ln->id.contains("760"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Redundant Declaration")
-    {
-        if (ln->id.contains("readability-redundant-declaration") ||
-                ln->id.contains("762"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Shadow")
-    {
-        if (ln->id.contains("Wshadow") ||
-                ln->id.contains("578"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Uninitialized")
-    {
-        if (ln->id.contains("Wuninitialized") ||
-                ln->id.contains("clang-analyzer-core.uninitialized.Assign") ||
-                ln->id.contains("clang-analyzer-core.CallAndMessage") ||
-                ln->id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
-                ln->id.contains("530")  ||
-                ln->id.contains("603")  ||
-                ln->id.contains("771"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Unreachable Code")
-    {
-        if (ln->id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") ||
-                ln->id.contains("527"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Unused Macro")
-    {
-        if (ln->id.contains("Wunused-macro") ||
-                ln->id.contains("750"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-
-    else if (errorGroup == "Unused Value")
-    {
-        if (ln->id.contains("Wunused-variable") ||
-                ln->id.contains("Wunused-value") ||
-                ln->id.contains("551"))
-        {
-            /* This line shall be included in export, goto next line. */
-            returnData = true;
-        }
-    }
-    else
-    {
-        QMessageBox::information(this, tr("Error"), tr("Unknown error group selected!"));
-    }
-
-    return returnData;
 }
 
 void ExportDialog::on_pushButton_clicked()
@@ -161,11 +31,11 @@ void ExportDialog::on_pushButton_clicked()
     /* Setup which tool output to export */
     if (whichTool == "Clang")
     {
-        resultsToExport = clangData;
+        resultsToExport = clangData.list;
     }
     else if (whichTool == "Lint")
     {
-        resultsToExport = lintData;
+        resultsToExport = lintData.list;
     }
     else
     {
@@ -208,7 +78,7 @@ void ExportDialog::on_pushButton_clicked()
                 /* Skip empty lines caused by the diff matching algorithm */
                 continue;
             }
-            else if (includeLineInExport(&ln) == true)
+            else if (ResultsData::includeLineInExport(ln,errorGroup) == true)
             {
                 /* Make sure that empty triage is tagged UNKNOWN */
                 if (ln.triage.isEmpty())
@@ -472,4 +342,3 @@ void ExportDialog::on_pushButton_clicked()
     }
 
 }
-

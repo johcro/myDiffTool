@@ -25,6 +25,9 @@ public:
         QString id;
         QString triage;
     };
+
+    static bool includeLineInExport(const Line &ln, const QString errorGroup);
+
     QList<Line> list;
     const QString fileName;
     QStandardItemModel *model;

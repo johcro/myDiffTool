@@ -177,8 +177,7 @@ void diffDialog::on_deleteButton_clicked()
 
 void diffDialog::on_exportButton_clicked()
 {
-
-    ExportDialog exportToFile(this, resultsData1, resultsData2);
+    ExportDialog exportToFile(this, *resultsData1, *resultsData2);
     exportToFile.exec();
 }
 
