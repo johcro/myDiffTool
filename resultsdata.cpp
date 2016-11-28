@@ -44,7 +44,7 @@ bool ResultsData::load(const QString &fileName) {
             newLine.line     = rxLintWithSha.cap(3);
             newLine.column.clear();
             newLine.severity.clear();
-            newLine.text     = rxLintWithSha.cap(4);
+            newLine.text     = rxLintWithSha.cap(4).trimmed();
             newLine.id       = rxLintWithSha.cap(5);
             list.append(newLine);
         } else if (rxLintWithoutSha.exactMatch(line)) {
@@ -54,7 +54,7 @@ bool ResultsData::load(const QString &fileName) {
             newLine.line     = rxLintWithoutSha.cap(2);
             newLine.column.clear();
             newLine.severity.clear();
-            newLine.text     = rxLintWithoutSha.cap(3);
+            newLine.text     = rxLintWithoutSha.cap(3).trimmed();
             newLine.id       = rxLintWithoutSha.cap(4);
             list.append(newLine);
         } else if (rxClangWithSha.exactMatch(line)) {
@@ -63,8 +63,8 @@ bool ResultsData::load(const QString &fileName) {
             newLine.filename = rxClangWithSha.cap(2);
             newLine.line     = rxClangWithSha.cap(3);
             newLine.column   = rxClangWithSha.cap(4);
-            newLine.severity = rxClangWithSha.cap(5);
-            newLine.text     = rxClangWithSha.cap(6);
+            newLine.severity = rxClangWithSha.cap(5).trimmed();
+            newLine.text     = rxClangWithSha.cap(6).trimmed();
             newLine.id       = rxClangWithSha.cap(7);
             list.append(newLine);
         } else if (rxClangWithoutSha.exactMatch(line)) {
@@ -73,12 +73,16 @@ bool ResultsData::load(const QString &fileName) {
             newLine.filename = rxClangWithoutSha.cap(1);
             newLine.line     = rxClangWithoutSha.cap(2);
             newLine.column   = rxClangWithoutSha.cap(3);
-            newLine.severity = rxClangWithoutSha.cap(4);
-            newLine.text     = rxClangWithoutSha.cap(5);
+            newLine.severity = rxClangWithoutSha.cap(4).trimmed();
+            newLine.text     = rxClangWithoutSha.cap(5).trimmed();
             newLine.id       = rxClangWithoutSha.cap(6);
             list.append(newLine);
         }
     }
+
+    list = ResultsData::sort(list);
+    removeDuplicates();
+
     writeDataToModel();
     return true;
 }
@@ -132,112 +136,77 @@ void ResultsData::syncFileNames(ResultsData *rd1, ResultsData *rd2)
     rd2->writeDataToModel();
 }
 
+QString ResultsData::getErrorGroup(QString id) {
+    if (id.contains("clang-analyzer-alpha.Conversion") ||
+        id == "570" || id == "573" || id == "574" || id == "648")
+    {
+        return "Conversion";
+    }
+
+    if (id.contains("Wimplicit-function-declaration") ||
+        id.contains("Wmissing-declarations") ||
+        id == "746")
+    {
+        return "Declaration Not Found";
+    }
+
+    if (id.contains("Wundefined-fixed-cast") ||
+        id.contains("Wfixed-literal-promotion") ||
+        id.contains("Wbitfield-constant-conversion") ||
+        id == "542")
+    {
+        return "Loss Of Precision";
+    }
+
+    if (id.contains("Wunused-macro") || id == "760")
+    {
+        return "Redefined Macro";
+    }
+
+    if (id.contains("readability-redundant-declaration") || id == "762")
+    {
+        return "Redundant Declaration";
+    }
+
+    if (id.contains("Wshadow") || id == "578")
+    {
+        return "Shadow";
+    }
+
+    if (id.contains("Wuninitialized") ||
+        id.contains("clang-analyzer-core.uninitialized.Assign") ||
+        id.contains("clang-analyzer-core.CallAndMessage") ||
+        id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
+        id == "530" ||
+        id == "603" ||
+        id == "771")
+    {
+        return "Uninitialized";
+    }
+
+    if (id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") || id == "527")
+    {
+        return "Unreachable Code";
+    }
+
+    if (id.contains("Wunused-macro") || id == "750")
+    {
+        return "Unused Macro";
+    }
+
+    if (id.contains("Wunused-variable") ||
+        id.contains("Wunused-value") ||
+        id == "551")
+    {
+        return "Unused Value";
+    }
+
+    return QString();
+}
+
 bool ResultsData::includeLineInExport(const ResultsData::Line &ln, const QString errorGroup)
 {
-    if (errorGroup == "All")
-    {
-        return true;
-    }
-    else if (errorGroup == "Conversion")
-    {
-        if (ln.id.contains("clang-analyzer-alpha.Conversion") ||
-            ln.id == "570" || ln.id == "573" ||
-                ln.id == "574" || ln.id == "648")
-        {
-            return true;
-        }
-    }
-    else if (errorGroup == "Declaration Not Found")
-    {
-        if (ln.id.contains("Wimplicit-function-declaration") ||
-                ln.id.contains("Wmissing-declarations") ||
-                ln.id == "746")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Loss Of Precision")
-    {
-        if (ln.id.contains("Wundefined-fixed-cast") ||
-                ln.id.contains("Wfixed-literal-promotion") ||
-                ln.id.contains("Wbitfield-constant-conversion") ||
-                ln.id == "542")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Redefined Macro")
-    {
-        if (ln.id.contains("Wunused-macro") ||
-                ln.id == "760")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Redundant Declaration")
-    {
-        if (ln.id.contains("readability-redundant-declaration") ||
-                ln.id == "762")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Shadow")
-    {
-        if (ln.id.contains("Wshadow") ||
-            ln.id == "578")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Uninitialized")
-    {
-        if (ln.id.contains("Wuninitialized") ||
-                ln.id.contains("clang-analyzer-core.uninitialized.Assign") ||
-                ln.id.contains("clang-analyzer-core.CallAndMessage") ||
-                ln.id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
-                ln.id == "530" ||
-                ln.id == "603" ||
-                ln.id == "771")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Unreachable Code")
-    {
-        if (ln.id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") ||
-                ln.id == "527")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Unused Macro")
-    {
-        if (ln.id.contains("Wunused-macro") ||
-                ln.id == "750")
-        {
-            return true;
-        }
-    }
-
-    else if (errorGroup == "Unused Value")
-    {
-        if (ln.id.contains("Wunused-variable") ||
-                ln.id.contains("Wunused-value") ||
-                ln.id == "551")
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return ((errorGroup == "All") || (errorGroup == ResultsData::getErrorGroup(ln.id)));
 }
 
 QList<ResultsData::Line> ResultsData::getResultsToExport(const QString errorGroup) const
@@ -250,24 +219,40 @@ QList<ResultsData::Line> ResultsData::getResultsToExport(const QString errorGrou
     return ret;
 }
 
-namespace {
-struct LessThan {
-    LessThan() {}
-    bool operator()(const ResultsData::Line &line1, const ResultsData::Line &line2) const {
-        if (line1.filename != line2.filename)
-            return line1.filename < line2.filename;
-        if (line1.line != line2.line)
-            return line1.line < line2.line;
-        if (line1.id != line2.id)
-            return line1.id < line2.id;
-        return false;
-    }
-};
+static bool lessThan(const ResultsData::Line &line1, const ResultsData::Line &line2) {
+    if (line1.filename != line2.filename)
+        return line1.filename < line2.filename;
+    if (line1.id != line2.id)
+        return line1.id < line2.id;
+    if (line1.text != line2.text)
+        return line1.text < line2.text;
+    if (line1.line != line2.line)
+        return line1.line.toInt() < line2.line.toInt();
+    return false;
 }
 
 QList<ResultsData::Line> ResultsData::sort(QList<ResultsData::Line> results)
 {
-    qSort(results.begin(), results.end(), LessThan());
+    std::sort(results.begin(), results.end(), lessThan);
     return results;
 }
 
+void ResultsData::removeDuplicates()
+{
+    for (int i = 0; i < list.size() - 1; ++i) {
+        if (list[i].filename != list[i+1].filename)
+            continue;
+        if (list[i].column != list[i+1].column)
+            continue;
+        if (list[i].text != list[i+1].text)
+            continue;
+        if (list[i].line != list[i+1].line)
+            continue;
+        if (list[i].triage.isEmpty())
+            list.removeAt(i--);
+        else if (list[i+1].triage.isEmpty()) {
+            list.removeAt(i + 1);
+            i--;
+        }
+    }
+}

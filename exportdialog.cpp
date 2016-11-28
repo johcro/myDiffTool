@@ -74,6 +74,7 @@ void ExportDialog::on_pushButton_clicked()
         outStream << line.line << ':';
         if (!line.column.isEmpty())
             outStream << line.column << ':';
+        outStream << line.severity << ':';
         outStream << line.text;
         outStream << " [" << line.id << ']';
         if (!line.triage.isEmpty())

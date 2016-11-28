@@ -26,9 +26,13 @@ public:
         QString triage;
     };
 
+    static QString getErrorGroup(QString id);
+
     static bool includeLineInExport(const Line &ln, const QString errorGroup);
     QList<Line> getResultsToExport(const QString errorGroup) const;
     static QList<Line> sort(QList<Line> results);
+
+    void removeDuplicates();
 
     QList<Line> list;
     const QString fileName;
