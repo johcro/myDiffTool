@@ -28,15 +28,20 @@ bool ResultsData::load(const QString &fileName) {
     QRegExp rxClangWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
     QRegExp rxClangWithoutSha("^(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-?([0-9a-zA-Z\\-\\.]+)\\]$");
 
-    QRegExp rxTriage("^(TP|FP|UNKNOWN).*");
+    QRegExp rxTriage("^(TP|FP|UNKNOWN|DUPLICATE).*");
+
+    int linenr = 0;
+    int triage = 0;
 
     QTextStream in(&f);
     while (!in.atEnd()) {
         const QString line = in.readLine();
-        if (rxTriage.exactMatch(line)) {
+        linenr++;
+        if (linenr == triage && rxTriage.exactMatch(line)) {
             list.back().triage = line;
             continue;
         }
+
         if (rxLintWithSha.exactMatch(line)) {
             struct Line newLine;
             newLine.sha      = rxLintWithSha.cap(1);
@@ -47,6 +52,7 @@ bool ResultsData::load(const QString &fileName) {
             newLine.text     = rxLintWithSha.cap(4).trimmed();
             newLine.id       = rxLintWithSha.cap(5);
             list.append(newLine);
+            triage = linenr + 1;
         } else if (rxLintWithoutSha.exactMatch(line)) {
             struct Line newLine;
             newLine.sha.clear();
@@ -57,6 +63,7 @@ bool ResultsData::load(const QString &fileName) {
             newLine.text     = rxLintWithoutSha.cap(3).trimmed();
             newLine.id       = rxLintWithoutSha.cap(4);
             list.append(newLine);
+            triage = linenr + 1;
         } else if (rxClangWithSha.exactMatch(line)) {
             struct Line newLine;
             newLine.sha      = rxClangWithSha.cap(1);
@@ -67,6 +74,7 @@ bool ResultsData::load(const QString &fileName) {
             newLine.text     = rxClangWithSha.cap(6).trimmed();
             newLine.id       = rxClangWithSha.cap(7);
             list.append(newLine);
+            triage = linenr + 1;
         } else if (rxClangWithoutSha.exactMatch(line)) {
             struct Line newLine;
             newLine.sha.clear();
@@ -77,7 +85,18 @@ bool ResultsData::load(const QString &fileName) {
             newLine.text     = rxClangWithoutSha.cap(5).trimmed();
             newLine.id       = rxClangWithoutSha.cap(6);
             list.append(newLine);
+            triage = linenr + 1;
         }
+    }
+
+    // Cleanup results..
+    for (int i = 0; i < list.size(); ++i) {
+        // Remove results that don't have a error group..
+        if (ResultsData::getErrorGroup(list[i].id).isNull())
+            list.removeAt(i--);
+        // Remove results in a build_output folder
+        else if (list[i].filename.contains("build_output"))
+            list.removeAt(i--);
     }
 
     list = ResultsData::sort(list);
@@ -226,6 +245,8 @@ static bool lessThan(const ResultsData::Line &line1, const ResultsData::Line &li
         return line1.id < line2.id;
     if (line1.text != line2.text)
         return line1.text < line2.text;
+    if (line1.column != line2.column)
+        return line1.column < line2.column;
     if (line1.line != line2.line)
         return line1.line.toInt() < line2.line.toInt();
     return false;
@@ -240,6 +261,10 @@ QList<ResultsData::Line> ResultsData::sort(QList<ResultsData::Line> results)
 void ResultsData::removeDuplicates()
 {
     for (int i = 0; i < list.size() - 1; ++i) {
+        if (list[i].triage.startsWith("DUP"))
+            list.removeAt(i--);
+    }
+    for (int i = 0; i < list.size() - 1; ++i) {
         if (list[i].filename != list[i+1].filename)
             continue;
         if (list[i].column != list[i+1].column)
@@ -248,9 +273,9 @@ void ResultsData::removeDuplicates()
             continue;
         if (list[i].line != list[i+1].line)
             continue;
-        if (list[i].triage.isEmpty())
+        if (list[i].triage.isEmpty() && list[i].sha.isEmpty())
             list.removeAt(i--);
-        else if (list[i+1].triage.isEmpty()) {
+        else if (list[i+1].triage.isEmpty() && list[i].sha.isEmpty()) {
             list.removeAt(i + 1);
             i--;
         }
