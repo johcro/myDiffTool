@@ -273,6 +273,10 @@ void ResultsData::removeDuplicates()
             continue;
         if (list[i].line != list[i+1].line)
             continue;
+        if (list[i].sha.isEmpty() && !list[i+1].sha.isEmpty())
+            list[i].sha = list[i+1].sha;
+        else if (!list[i].sha.isEmpty() && list[i+1].sha.isEmpty())
+            list[i+1].sha = list[i].sha;
         if (list[i].triage.isEmpty() && list[i].sha.isEmpty())
             list.removeAt(i--);
         else if (list[i+1].triage.isEmpty() && list[i].sha.isEmpty()) {
