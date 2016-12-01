@@ -157,7 +157,11 @@ void ResultsData::syncFileNames(ResultsData *rd1, ResultsData *rd2)
 
 QString ResultsData::getErrorGroup(QString id) {
     if (id.contains("clang-analyzer-alpha.Conversion") ||
-        id == "570" || id == "573" || id == "574" || id == "648")
+        id.contains("clang-analyzer-core.Conversion") ||
+        id.contains("Wundefined-fixed-cast") ||
+        id.contains("Wfixed-literal-promotion") ||
+        id.contains("Wbitfield-constant-conversion") ||
+        id == "542" || id == "570" || id == "573" || id == "574" || id == "648")
     {
         return "Conversion";
     }
@@ -169,15 +173,7 @@ QString ResultsData::getErrorGroup(QString id) {
         return "Declaration Not Found";
     }
 
-    if (id.contains("Wundefined-fixed-cast") ||
-        id.contains("Wfixed-literal-promotion") ||
-        id.contains("Wbitfield-constant-conversion") ||
-        id == "542")
-    {
-        return "Loss Of Precision";
-    }
-
-    if (id.contains("Wunused-macro") || id == "760")
+    if (id.contains("Wmacro-redefined") || id == "760")
     {
         return "Redefined Macro";
     }
@@ -221,6 +217,21 @@ QString ResultsData::getErrorGroup(QString id) {
     }
 
     return QString();
+}
+
+QStringList ResultsData::getErrorGroupList()
+{
+    QStringList ret;
+    ret.append("Conversion");
+    ret.append("Declaration Not Found");
+    ret.append("Redefined Macro");
+    ret.append("Redundant Declaration");
+    ret.append("Shadow");
+    ret.append("Uninitialized");
+    ret.append("Unreachable Code");
+    ret.append("Unused Macro");
+    ret.append("Unused Value");
+    return ret;
 }
 
 bool ResultsData::includeLineInExport(const ResultsData::Line &ln, const QString errorGroup)

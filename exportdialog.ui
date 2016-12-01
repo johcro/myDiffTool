@@ -26,7 +26,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox">
+        <widget class="QComboBox" name="errorGroup">
          <item>
           <property name="text">
            <string>None</string>
@@ -45,11 +45,6 @@
          <item>
           <property name="text">
            <string>Declaration Not Found</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Loss Of Precision</string>
           </property>
          </item>
          <item>
@@ -114,7 +109,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_2">
+        <widget class="QComboBox" name="whichTool">
          <item>
           <property name="text">
            <string>None</string>
@@ -191,8 +186,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>233</x>
-     <y>125</y>
+     <x>357</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>107</x>

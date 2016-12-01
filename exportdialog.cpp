@@ -6,6 +6,9 @@
 #include <QMessageBox>
 #include "resultsdata.h"
 
+static const QString TOOL_CLANG("Clang");
+static const QString TOOL_LINT("Lint");
+
 ExportDialog::ExportDialog(QWidget *parent, const ResultsData &clangResults, const ResultsData &lintResults) :
     QDialog(parent),
     ui(new Ui::ExportDialog),
@@ -13,6 +16,16 @@ ExportDialog::ExportDialog(QWidget *parent, const ResultsData &clangResults, con
     lintData(lintResults)
 {
     ui->setupUi(this);
+
+    ui->whichTool->clear();
+    ui->whichTool->addItem("None");
+    ui->whichTool->addItem(TOOL_CLANG);
+    ui->whichTool->addItem(TOOL_LINT);
+
+    ui->errorGroup->clear();
+    ui->errorGroup->addItem("None");
+    ui->errorGroup->addItem("All");
+    ui->errorGroup->addItems(ResultsData::getErrorGroupList());
 }
 
 ExportDialog::~ExportDialog()
@@ -24,16 +37,16 @@ void ExportDialog::on_pushButton_clicked()
 {
     //Export
 
-    QString whichTool = ui->comboBox_2->currentText();
-    const QString errorGroup = ui->comboBox->currentText();
+    QString whichTool = ui->whichTool->currentText();
+    const QString errorGroup = ui->errorGroup->currentText();
     QList<ResultsData::Line> resultsToExport;
 
     /* Setup which tool output to export */
-    if (whichTool == "Clang")
+    if (whichTool == TOOL_CLANG)
     {
         resultsToExport = clangData.getResultsToExport(errorGroup);
     }
-    else if (whichTool == "Lint")
+    else if (whichTool == TOOL_LINT)
     {
         resultsToExport = lintData.getResultsToExport(errorGroup);
     }

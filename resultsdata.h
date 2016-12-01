@@ -27,6 +27,7 @@ public:
     };
 
     static QString getErrorGroup(QString id);
+    static QStringList getErrorGroupList();
 
     static bool includeLineInExport(const Line &ln, const QString errorGroup);
     QList<Line> getResultsToExport(const QString errorGroup) const;
