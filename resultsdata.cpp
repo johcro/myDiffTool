@@ -25,7 +25,7 @@ bool ResultsData::load(const QString &fileName) {
     QRegExp rxLintWithoutSha("^(/repo/[^:]+):(\\d+):(.+)\\[([0-9]+)\\]$");
 
     // Clang: 1234:/home/danielm/file1.c:14:12: warning: unused variable 'x' [-Wunused-variable]
-    QRegExp rxClangWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-([0-9a-zA-Z\\-\\.]+)\\]$");
+    QRegExp rxClangWithSha("^([0-9a-f]{40}):(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-?([0-9a-zA-Z\\-\\.]+)\\]$");
     QRegExp rxClangWithoutSha("^(/repo/[^:]+):(\\d+):(\\d+):([ a-z]+):(.+)\\[-?([0-9a-zA-Z\\-\\.]+)\\]$");
 
     QRegExp rxTriage("^(TP|FP|UNKNOWN|DUPLICATE).*");
@@ -161,7 +161,11 @@ QString ResultsData::getErrorGroup(QString id) {
         id.contains("Wundefined-fixed-cast") ||
         id.contains("Wfixed-literal-promotion") ||
         id.contains("Wbitfield-constant-conversion") ||
-        id == "542" || id == "570" || id == "573" || id == "574" || id == "648")
+        id.contains("Wshift-overflow") ||
+        id.contains("Wshift-count-overflow") ||
+        id.contains("Winteger-overflow") ||
+        id.contains("Wconstant-conversion") ||
+        id == "542" || id == "569" || id == "570" || id == "572" || id == "573" || id == "574" || id == "648")
     {
         return "Conversion";
     }
@@ -173,12 +177,19 @@ QString ResultsData::getErrorGroup(QString id) {
         return "Declaration Not Found";
     }
 
+    if (id.contains("Wshift-op-parentheses") ||
+        id.contains("Wparentheses") ||
+        id == "504")
+    {
+        return "Parentheses";
+    }
+
     if (id.contains("Wmacro-redefined") || id == "760")
     {
         return "Redefined Macro";
     }
 
-    if (id.contains("readability-redundant-declaration") || id == "762")
+    if (id.contains("readability-redundant-declaration") || id == "762" || id == "770")
     {
         return "Redundant Declaration";
     }
@@ -194,7 +205,8 @@ QString ResultsData::getErrorGroup(QString id) {
         id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
         id == "530" ||
         id == "603" ||
-        id == "771")
+        id == "771" ||
+        id == "772")
     {
         return "Uninitialized";
     }
@@ -211,7 +223,8 @@ QString ResultsData::getErrorGroup(QString id) {
 
     if (id.contains("Wunused-variable") ||
         id.contains("Wunused-value") ||
-        id == "551")
+        id == "551" ||
+        id == "752")
     {
         return "Unused Value";
     }
@@ -224,6 +237,7 @@ QStringList ResultsData::getErrorGroupList()
     QStringList ret;
     ret.append("Conversion");
     ret.append("Declaration Not Found");
+    ret.append("Parentheses");
     ret.append("Redefined Macro");
     ret.append("Redundant Declaration");
     ret.append("Shadow");
