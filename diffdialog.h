@@ -72,6 +72,8 @@ private slots:
 
     void on_tableView_2_doubleClicked(const QModelIndex &index);
 
+    void report();
+
     void findPrevious();
     void findNext();
 

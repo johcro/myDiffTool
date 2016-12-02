@@ -333,6 +333,111 @@ void diffDialog::autoMapSuggestions()
 */
 }
 
+static void reportForId(QTextStream &ostr, const QList<ResultsData::Line> &list, const QString id) {
+    unsigned int tp = 0;
+    unsigned int fp = 0;
+    foreach (const ResultsData::Line &warning, list) {
+        if (!warning.id.contains(id))
+            continue;
+        if (warning.triage.startsWith("TP"))
+            tp += 1;
+        else if (warning.triage.startsWith("FP"))
+            fp += 1;
+    }
+    ostr << ResultsData::getErrorGroup(id) << '\t' << id << '\t' << tp << '\t' << fp << '\n';
+}
+
+void diffDialog::report() {
+    QMap<int,QString> warnings;
+    // Conversion
+    warnings[542] = "Wbitfield-constant-conversion";
+    warnings[569] = "Wconstant-conversion,Wundefined-fixed-cast";
+    warnings[570] = "";
+    warnings[572] = "Wshift-count-overflow";
+    warnings[573] = "clang-analyzer-alpha.Conversion";
+    warnings[574] = "";
+    warnings[648] = "Winteger-overflow,Wshift-overflow";
+    // Declaration Not Found
+    warnings[746] = "Wimplicit-function-declaration,Wmissing-declarations";
+    // Parentheses
+    warnings[504] = "Wshift-op-parentheses,Wparentheses";
+    // Redefined Macro
+    warnings[760] = "Wmacro-redefined";
+    // Redundant Declaration
+    warnings[762] = "readability-redundant-declaration";
+    warnings[770] = "error: redefinition";
+    // Shadow
+    warnings[578] = "Wshadow";
+    // Uninitialized
+    warnings[530] = "Wuninitialized";
+    warnings[771] = "clang-analyzer-core.uninitialized.Assign, clang-analyzer-core.CallAndMessage, clang-analyzer-core.UndefinedBinaryOperatorResult";
+    warnings[772] = "";
+    // Unreachable code
+    warnings[527] = "clang-analyzer-alpha.deadcode.UnreachableCode";
+    // Unused macro
+    warnings[750] = "Wunused-macro";
+    // Unused variable
+    warnings[551] = "Wunused-variable";
+    warnings[752] = "";
+
+    QList<int> warnings1;
+    // Conversion
+    warnings1.append(542);
+    warnings1.append(569);
+    warnings1.append(570);
+    warnings1.append(572);
+    warnings1.append(573);
+    warnings1.append(574);
+    warnings1.append(648);
+    // Declaration Not Found
+    warnings1.append(746);
+    // Parentheses
+    warnings1.append(504);
+    // Redefined Macro
+    warnings1.append(760);
+    // Redundant Declaration
+    warnings1.append(762);
+    warnings1.append(770);
+    // Shadow
+    warnings1.append(578);
+    // Uninitialized
+    warnings1.append(530);
+    warnings1.append(771);
+    warnings1.append(772);
+    // Unreachable code
+    warnings1.append(527);
+    // Unused macro
+    warnings1.append(750);
+    // Unused variable
+    warnings1.append(551);
+    warnings1.append(752);
+
+
+    QString str;
+    QTextStream ostr(&str);
+
+    ostr << "Lint\n"  << resultsData2->report() << "\n\n";
+    foreach (const int lintId, warnings1) {
+        reportForId(ostr, resultsData2->list, QString::number(lintId));
+    }
+    ostr << "\n\n";
+
+    ostr << "Clang\n" << resultsData1->report() << "\n\n";
+    foreach (const int lintId, warnings1) {
+        const QStringList clangWarnings(warnings[lintId].split(','));
+        foreach (QString clangId, clangWarnings) {
+            clangId = clangId.trimmed();
+            if (clangId.isEmpty())
+                continue;
+            reportForId(ostr, resultsData1->list, clangId);
+        }
+    }
+
+    QFile f(QDir::homePath() + "/report.txt");
+    if (f.open(QFile::WriteOnly | QFile::Text))
+        f.write(str.toLatin1());
+}
+
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {

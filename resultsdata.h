@@ -40,6 +40,8 @@ public:
     QStandardItemModel *model;
     static void syncFileNames(ResultsData *rd1, ResultsData *rd2);
 
+    QString report() const;
+
     static int getShaColumn() { return -1; }
     static int getFilenameColumn() { return 0; }
     static int getLineColumn() { return 1; }

@@ -310,3 +310,29 @@ void ResultsData::removeDuplicates()
         }
     }
 }
+
+QString ResultsData::report() const
+{
+    QMap<QString, int> truePositives;
+    QMap<QString, int> falsePositives;
+    foreach (const QString &errorGroup, ResultsData::getErrorGroupList()) {
+        truePositives[errorGroup] = 0;
+        falsePositives[errorGroup] = 0;
+    }
+    foreach (const ResultsData::Line &line, list) {
+        if (line.filename.isEmpty())
+            continue;
+        const QString errorGroup = ResultsData::getErrorGroup(line.id);
+        if (line.triage.startsWith("TP"))
+            truePositives[errorGroup] += 1;
+        else if (line.triage.startsWith("FP"))
+            falsePositives[errorGroup] += 1;
+    }
+    QString ret = "";
+    QTextStream ostr(&ret);
+    foreach (const QString &errorGroup, truePositives.keys()) {
+        ostr << errorGroup << '\t' << truePositives[errorGroup] << '\t' << falsePositives[errorGroup] << '\n';
+    }
+    return ret;
+}
+

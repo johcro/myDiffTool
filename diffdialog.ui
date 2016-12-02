@@ -29,7 +29,7 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <widget class="QTextEdit" name="textEdit">
@@ -79,7 +79,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
             <widget class="QSplitter" name="splitter">
@@ -191,6 +191,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="reportButton">
+       <property name="text">
+        <string>Report</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="exportButton">
        <property name="text">
         <string>Export</string>
@@ -258,9 +265,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>reportButton</sender>
+   <signal>clicked()</signal>
+   <receiver>diffDialog</receiver>
+   <slot>report()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>668</x>
+     <y>528</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>634</x>
+     <y>532</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>findPrevious()</slot>
   <slot>findNext()</slot>
+  <slot>report()</slot>
  </slots>
 </ui>
