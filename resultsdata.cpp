@@ -222,11 +222,10 @@ QString ResultsData::getErrorGroup(QString id) {
     }
 
     if (id.contains("Wunused-variable") ||
-        id.contains("Wunused-value") ||
         id == "551" ||
         id == "752")
     {
-        return "Unused Value";
+        return "Unused Symbol";
     }
 
     return QString();
@@ -244,7 +243,7 @@ QStringList ResultsData::getErrorGroupList()
     ret.append("Uninitialized");
     ret.append("Unreachable Code");
     ret.append("Unused Macro");
-    ret.append("Unused Value");
+    ret.append("Unused Symbol");
     return ret;
 }
 
