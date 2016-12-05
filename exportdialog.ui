@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>369</width>
+    <width>398</width>
     <height>155</height>
    </rect>
   </property>
@@ -35,51 +35,6 @@
          <item>
           <property name="text">
            <string>All</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Conversion</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Declaration Not Found</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Redefined Macro</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Redundant Declaration</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Shadow</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Uninitialized</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Unreachable Code</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Unused Macro</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Unused Value</string>
           </property>
          </item>
         </widget>
@@ -113,16 +68,6 @@
          <item>
           <property name="text">
            <string>None</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Clang</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Lint</string>
           </property>
          </item>
         </widget>
