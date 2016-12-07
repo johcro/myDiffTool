@@ -171,8 +171,8 @@ QString ResultsData::getErrorGroup(QString id) {
     }
 
     if (id.contains("Wimplicit-function-declaration") ||
-        id.contains("Wmissing-declarations") ||
-        id == "746")
+            id.contains("Wmissing-declarations") ||
+            id == "746")
     {
         return "Declaration Not Found";
     }
@@ -194,7 +194,8 @@ QString ResultsData::getErrorGroup(QString id) {
         return "Redundant Declaration";
     }
 
-    if (id.contains("Wshadow") || id == "578")
+    if (id.contains("Wshadow") ||
+            id == "578")
     {
         return "Shadow";
     }
@@ -211,12 +212,14 @@ QString ResultsData::getErrorGroup(QString id) {
         return "Uninitialized";
     }
 
-    if (id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") || id == "527")
+    if (id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") ||
+            id == "527")
     {
         return "Unreachable Code";
     }
 
-    if (id.contains("Wunused-macro") || id == "750")
+    if (id.contains("Wunused-macro") ||
+            id == "750")
     {
         return "Unused Macro";
     }
@@ -270,9 +273,18 @@ static bool lessThan(const ResultsData::Line &line1, const ResultsData::Line &li
     if (line1.text != line2.text)
         return line1.text < line2.text;
     if (line1.column != line2.column)
+    {
+        bool ok1(false);
+        bool ok2(false);
+        int c1 = line1.column.toInt(&ok1);
+        int c2 = line2.column.toInt(&ok2);
+        if (ok1 && ok2)
+            return c1 < c2;
         return line1.column < line2.column;
+    }
     if (line1.line != line2.line)
         return line1.line.toInt() < line2.line.toInt();
+
     return false;
 }
 
@@ -301,12 +313,14 @@ void ResultsData::removeDuplicates()
             list[i].sha = list[i+1].sha;
         else if (!list[i].sha.isEmpty() && list[i+1].sha.isEmpty())
             list[i+1].sha = list[i].sha;
-        if (list[i].triage.isEmpty() && list[i].sha.isEmpty())
+        if (list[i].triage.isEmpty())
             list.removeAt(i--);
-        else if (list[i+1].triage.isEmpty() && list[i].sha.isEmpty()) {
+        else if (list[i+1].triage.isEmpty()) {
             list.removeAt(i + 1);
             i--;
         }
+        else if (list[i].triage == list[i+1].triage)
+            list.removeAt(i--);
     }
 }
 

@@ -57,11 +57,11 @@ void ExportDialog::on_pushButton_clicked()
         return;
     }
 
-    resultsToExport = ResultsData::sort(resultsToExport);
-
     /*******************************
      * Start the sorting and export
      *******************************/
+    resultsToExport = ResultsData::sort(resultsToExport);
+
     QString defaultResultFile = QDir::homePath() + "/" + whichTool + "-" + errorGroup + " Warnings" ;
     QString resFileName = QFileDialog::getSaveFileName(this, tr("Save export as"), defaultResultFile, tr("Text Files (*.txt)"));
     if ( resFileName.isEmpty() )
@@ -79,19 +79,51 @@ void ExportDialog::on_pushButton_clicked()
 
     QTextStream outStream(&f);
 
+    if (ui->checkBox->isChecked())
+    {
+        /* Excel format.
+         * Add header line
+         */
+        outStream << "Sha#Path#Line#Column#Severity#Text#ID#Triage\n";
+    }
+
     foreach (const ResultsData::Line &line, resultsToExport)
     {
+        /* Use # if export for excel and : if not */
+        char separator = ui->checkBox->isChecked() ? '#' : ':';
+
         if (!line.sha.isEmpty())
-            outStream << line.sha << ':';
-        outStream << line.filename << ':';
-        outStream << line.line << ':';
-        if (!line.column.isEmpty())
-            outStream << line.column << ':';
-        outStream << line.severity << ':';
+        {
+            outStream << line.sha << separator;
+        }
+        else if (ui->checkBox->isChecked())
+        {
+            outStream << separator;
+        }
+        outStream << line.filename << separator;
+        outStream << line.line << separator;
+        if (!line.column.isEmpty() || ui->checkBox->isChecked())
+            outStream << line.column << separator;
+        outStream << line.severity << separator;
         outStream << line.text;
-        outStream << " [" << line.id << ']';
-        if (!line.triage.isEmpty())
+        if (!ui->checkBox->isChecked())
+        {
+            /* Text output */
+            outStream << " [" << line.id << ']';
+        }
+        else
+        {
+            /* Excel output */
+            outStream << separator << "[" << line.id << ']' << separator;
+        }
+        if (!line.triage.isEmpty() && !ui->checkBox->isChecked())
+        {
             outStream << '\n' << line.triage;
+        }
+        else if (ui->checkBox->isChecked())
+        {
+            outStream << line.triage;
+        }
         outStream << '\n';
     }
     f.flush();

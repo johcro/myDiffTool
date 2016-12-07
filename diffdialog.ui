@@ -29,7 +29,7 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <widget class="QWidget" name="layoutWidget">
+         <widget class="QWidget" name="">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <widget class="QTextEdit" name="textEdit">
@@ -79,7 +79,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="layoutWidget">
+         <widget class="QWidget" name="">
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
             <widget class="QSplitter" name="splitter">
