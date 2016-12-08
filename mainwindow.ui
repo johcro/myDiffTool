@@ -105,7 +105,6 @@
      </layout>
     </item>
    </layout>
-   <zorder>pushButton_3</zorder>
    <zorder>pushButton_file1</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">

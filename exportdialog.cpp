@@ -57,11 +57,11 @@ void ExportDialog::on_pushButton_clicked()
         return;
     }
 
-    resultsToExport = ResultsData::sort(resultsToExport);
-
     /*******************************
      * Start the sorting and export
      *******************************/
+    resultsToExport = ResultsData::sort(resultsToExport);
+
     QString defaultResultFile = QDir::homePath() + "/" + whichTool + "-" + errorGroup + " Warnings" ;
     QString resFileName = QFileDialog::getSaveFileName(this, tr("Save export as"), defaultResultFile, tr("Text Files (*.txt)"));
     if ( resFileName.isEmpty() )
@@ -79,19 +79,46 @@ void ExportDialog::on_pushButton_clicked()
 
     QTextStream outStream(&f);
 
+    /* Check if the export is intended for excel, and if so use '#' as separator instead of ':' */
+    const bool forExcel = ui->exportForExcel->isChecked();
+    const char separator = forExcel ? '#' : ':';
+
+    if (forExcel)
+    {
+        /* Excel format.
+         * Add header line
+         */
+        outStream << "Sha#Path#Line#Column#Severity#Text#ID#Triage\n";
+    }
+
     foreach (const ResultsData::Line &line, resultsToExport)
     {
-        if (!line.sha.isEmpty())
-            outStream << line.sha << ':';
-        outStream << line.filename << ':';
-        outStream << line.line << ':';
-        if (!line.column.isEmpty())
-            outStream << line.column << ':';
-        outStream << line.severity << ':';
+        if (!line.sha.isEmpty() || forExcel)
+            outStream << line.sha << separator;
+        outStream << line.filename << separator;
+        outStream << line.line << separator;
+        if (!line.column.isEmpty() || forExcel)
+            outStream << line.column << separator;
+        outStream << line.severity << separator;
         outStream << line.text;
-        outStream << " [" << line.id << ']';
-        if (!line.triage.isEmpty())
+        if (!forExcel)
+        {
+            /* Text output */
+            outStream << " [" << line.id << ']';
+        }
+        else
+        {
+            /* Excel output */
+            outStream << separator << "[" << line.id << ']' << separator;
+        }
+        if (!line.triage.isEmpty() && !forExcel)
+        {
             outStream << '\n' << line.triage;
+        }
+        else if (forExcel)
+        {
+            outStream << line.triage;
+        }
         outStream << '\n';
     }
     f.flush();
