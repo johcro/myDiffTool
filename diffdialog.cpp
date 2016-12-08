@@ -58,109 +58,110 @@ diffDialog::~diffDialog()
 // --------------------------------------------------------------------------------------
 
 void diffDialog::on_connectButton_clicked()
-{/*
-    QModelIndexList indexListOne = ui->tableView->selectionModel()->selectedIndexes();
-    QModelIndexList indexListTwo = ui->tableView_2->selectionModel()->selectedIndexes();
-    if (( indexListOne.isEmpty() && indexListTwo.isEmpty() ) ||( indexListOne.size() > 1 || indexListTwo.size() > 1 )) {
-        QMessageBox::information(this, tr("Warning!"), tr("Please select ONE index to connect."));
-        return;
-    }
+{
+    /*
+       QModelIndexList indexListOne = ui->tableView->selectionModel()->selectedIndexes();
+       QModelIndexList indexListTwo = ui->tableView_2->selectionModel()->selectedIndexes();
+       if (( indexListOne.isEmpty() && indexListTwo.isEmpty() ) ||( indexListOne.size() > 1 || indexListTwo.size() > 1 )) {
+           QMessageBox::information(this, tr("Warning!"), tr("Please select ONE index to connect."));
+           return;
+       }
 
-    QList<QString> row1, row2;
+       QList<QString> row1, row2;
 
-    // Multiple rows can be selected
-    foreach (QModelIndex index, indexListOne) {
-        row1.append(QString::number(index.row()));
-    }
+       // Multiple rows can be selected
+       foreach (QModelIndex index, indexListOne) {
+           row1.append(QString::number(index.row()));
+       }
 
-    // Multiple rows can be selected
-    foreach (QModelIndex index, indexListTwo) {
-        row2.append(QString::number(index.row()));
-    }
+       // Multiple rows can be selected
+       foreach (QModelIndex index, indexListTwo) {
+           row2.append(QString::number(index.row()));
+       }
 
 
-    // Appending another row to rules list
-    QList<QStandardItem*> newRow;
-    QStandardItem *itm = new QStandardItem(1);
-    modelListRules->appendRow(itm);
+       // Appending another row to rules list
+       QList<QStandardItem*> newRow;
+       QStandardItem *itm = new QStandardItem(1);
+       modelListRules->appendRow(itm);
 
-    // Populating the new row with information
-    int insertRow = modelListRules->rowCount();
-    QModelIndex index;
+       // Populating the new row with information
+       int insertRow = modelListRules->rowCount();
+       QModelIndex index;
 
-    if (row1.isEmpty()){
-        // Filename
-        index = modelListRules->index(insertRow-1, 0, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), fileNameColumn, QModelIndex()) ) );
+       if (row1.isEmpty()){
+           // Filename
+           index = modelListRules->index(insertRow-1, 0, QModelIndex());
+           modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), fileNameColumn, QModelIndex()) ) );
 
-        //SHA
-        index = modelListRules->index(insertRow-1, 1, QModelIndex());
-        modelListRules->setData(index, "" );
+           //SHA
+           index = modelListRules->index(insertRow-1, 1, QModelIndex());
+           modelListRules->setData(index, "" );
 
-        // First file error msg
-        index = modelListRules->index(insertRow-1, 2, QModelIndex());
-        modelListRules->setData(index, "" );
+           // First file error msg
+           index = modelListRules->index(insertRow-1, 2, QModelIndex());
+           modelListRules->setData(index, "" );
 
-        // Row
-        index = modelListRules->index(insertRow-1, 3, QModelIndex());
-        modelListRules->setData(index, "" );
-    } else {
-        // Filename
-        index = modelListRules->index(insertRow-1, 0, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), fileNameColumn, QModelIndex()) ) );
+           // Row
+           index = modelListRules->index(insertRow-1, 3, QModelIndex());
+           modelListRules->setData(index, "" );
+       } else {
+           // Filename
+           index = modelListRules->index(insertRow-1, 0, QModelIndex());
+           modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), fileNameColumn, QModelIndex()) ) );
 
-        //SHA
-        index = modelListRules->index(insertRow-1, 1, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), shaColumn, QModelIndex()) ) );
+           //SHA
+           index = modelListRules->index(insertRow-1, 1, QModelIndex());
+           modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), shaColumn, QModelIndex()) ) );
 
-        // First file error msg
-        index = modelListRules->index(insertRow-1, 2, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), 3, QModelIndex()) ) );
+           // First file error msg
+           index = modelListRules->index(insertRow-1, 2, QModelIndex());
+           modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), 3, QModelIndex()) ) );
 
-        // Row
-        index = modelListRules->index(insertRow-1, 3, QModelIndex());
-        modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), lineColumn, QModelIndex()) ) );
-    }
+           // Row
+           index = modelListRules->index(insertRow-1, 3, QModelIndex());
+           modelListRules->setData(index, model1->data( model1->index(row1.first().toInt(), lineColumn, QModelIndex()) ) );
+       }
 
-    if (row2.isEmpty()){
-        // SHA
-        index = modelListRules->index(insertRow-1, 4, QModelIndex());
-        modelListRules->setData(index, "" );
+       if (row2.isEmpty()){
+           // SHA
+           index = modelListRules->index(insertRow-1, 4, QModelIndex());
+           modelListRules->setData(index, "" );
 
-        // Second file error msg
-        index = modelListRules->index(insertRow-1, 5, QModelIndex());
-        modelListRules->setData(index, "" );
+           // Second file error msg
+           index = modelListRules->index(insertRow-1, 5, QModelIndex());
+           modelListRules->setData(index, "" );
 
-        // Row
-        index = modelListRules->index(insertRow-1, 6, QModelIndex());
-        modelListRules->setData(index, "" );
-    } else {
-        // SHA
-        index = modelListRules->index(insertRow-1, 4, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), shaColumn, QModelIndex()) ) );
+           // Row
+           index = modelListRules->index(insertRow-1, 6, QModelIndex());
+           modelListRules->setData(index, "" );
+       } else {
+           // SHA
+           index = modelListRules->index(insertRow-1, 4, QModelIndex());
+           modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), shaColumn, QModelIndex()) ) );
 
-        // Second file error msg
-        index = modelListRules->index(insertRow-1, 5, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), 3, QModelIndex()) ) );
+           // Second file error msg
+           index = modelListRules->index(insertRow-1, 5, QModelIndex());
+           modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), 3, QModelIndex()) ) );
 
-        // Row
-        index = modelListRules->index(insertRow-1, 6, QModelIndex());
-        modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), lineColumn, QModelIndex()) ) );
-    }
+           // Row
+           index = modelListRules->index(insertRow-1, 6, QModelIndex());
+           modelListRules->setData(index, model2->data( model2->index(row2.first().toInt(), lineColumn, QModelIndex()) ) );
+       }
 
-    // Comment
-    index = modelListRules->index(insertRow-1, 7, QModelIndex());
-    modelListRules->setData(index, ui->lineEdit->text());
+       // Comment
+       index = modelListRules->index(insertRow-1, 7, QModelIndex());
+       modelListRules->setData(index, ui->lineEdit->text());
 
-    // TP/FP
-    index = modelListRules->index(insertRow-1, 8, QModelIndex());
-    modelListRules->setData(index, ui->radioTPButton->isChecked() ? "TP" : "FP");
+       // TP/FP
+       index = modelListRules->index(insertRow-1, 8, QModelIndex());
+       modelListRules->setData(index, ui->radioTPButton->isChecked() ? "TP" : "FP");
 
-    // Clear input
-    ui->tableView->selectionModel()->clear();
-    ui->tableView_2->selectionModel()->clear();
-    ui->lineEdit->clear();
-*/
+       // Clear input
+       ui->tableView->selectionModel()->clear();
+       ui->tableView_2->selectionModel()->clear();
+       ui->lineEdit->clear();
+    */
 
     // Debug
 //    qDebug() << "Row1:" << row1 << "Row2:" << row2;
@@ -169,11 +170,13 @@ void diffDialog::on_connectButton_clicked()
 
 
 void diffDialog::on_deleteButton_clicked()
-{/*
-    QModelIndex currentIndex = ui->tableView_3->selectionModel()->currentIndex();
-    ui->tableView_3->selectionModel()->clear();
-    modelListRules->removeRow(currentIndex.row());
-*/}
+{
+    /*
+       QModelIndex currentIndex = ui->tableView_3->selectionModel()->currentIndex();
+       ui->tableView_3->selectionModel()->clear();
+       modelListRules->removeRow(currentIndex.row());
+    */
+}
 
 void diffDialog::on_exportButton_clicked()
 {
@@ -181,7 +184,8 @@ void diffDialog::on_exportButton_clicked()
     exportToFile.exec();
 }
 
-static int linePosition(const QString &str, int lineToOpen) {
+static int linePosition(const QString &str, int lineToOpen)
+{
     int linenr = 1;
     int pos;
     for (pos = 0; linenr < lineToOpen && pos < str.size(); ++pos) {
@@ -191,12 +195,12 @@ static int linePosition(const QString &str, int lineToOpen) {
     return linenr == lineToOpen ? pos : 0;
 }
 
-void diffDialog::openResult(const QModelIndex &index, const ResultsData &resultsData) {
+void diffDialog::openResult(const QModelIndex &index, const ResultsData &resultsData)
+{
     const QString &fileToOpen = resultsData.list[index.row()].filename;
     int lineToOpen = resultsData.list[index.row()].line.toInt();
 
-    if ( fileToOpen.isEmpty() )
-    {
+    if (fileToOpen.isEmpty()) {
         QMessageBox::information(this, tr("Warning"), tr("No filename selected!"));
         return;
     }
@@ -222,12 +226,14 @@ void diffDialog::on_tableView_2_doubleClicked(const QModelIndex &index)
     openResult(index, *resultsData2);
 }
 
-void diffDialog::findPrevious() {
+void diffDialog::findPrevious()
+{
     const QString seltext = ui->textEdit->textCursor().selectedText();
     ui->textEdit->find(seltext, QTextDocument::FindBackward | QTextDocument::FindWholeWords);
 }
 
-void diffDialog::findNext() {
+void diffDialog::findNext()
+{
     const QString seltext = ui->textEdit->textCursor().selectedText();
     ui->textEdit->find(seltext, QTextDocument::FindWholeWords);
 }
@@ -241,7 +247,7 @@ void diffDialog::setAndConfigureView(QTableView *tabView, QStandardItemModel *mo
 {
     tabView->setModel(model);
 
-    for ( int column = 0; column < model->columnCount(); ++column )
+    for (int column = 0; column < model->columnCount(); ++column)
         tabView->setColumnWidth(column, 80);
 
     if (ResultsData::getFilenameColumn() >= 0)
@@ -290,50 +296,51 @@ void diffDialog::createConfigureAndSetRuleView(QTableView *tabView)
 
 void diffDialog::autoMapSuggestions()
 {
-/*
-    for (int rowmodel1 = 0; rowmodel1 < model1->rowCount(); rowmodel1++)
-    {
-        for (int rowmodel2 = 0; rowmodel2 < model2->rowCount(); rowmodel2++)
+    /*
+        for (int rowmodel1 = 0; rowmodel1 < model1->rowCount(); rowmodel1++)
         {
-            if (model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString().isEmpty() ||
-                model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString().isEmpty()){
-                // Do nothing the row is empty
-            } else {
-                if ( model1->data( model1->index(rowmodel1, shaColumn, QModelIndex()) ).toString() ==
-                     model2->data( model2->index(rowmodel2, shaColumn, QModelIndex()) ).toString() &&
-                     model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString() ==
-                     model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString() &&
-                    ( model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt() >
-                      model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() - 100 &&
-                      model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt() <
-                      model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() + 100)
-                      )
-                {
-                    if (autoMap.contains(rowmodel1)){
-                        //TODO: Check if we have a closer match
-                    } else {
-                        autoMap[rowmodel1] = rowmodel2;
+            for (int rowmodel2 = 0; rowmodel2 < model2->rowCount(); rowmodel2++)
+            {
+                if (model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString().isEmpty() ||
+                    model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString().isEmpty()){
+                    // Do nothing the row is empty
+                } else {
+                    if ( model1->data( model1->index(rowmodel1, shaColumn, QModelIndex()) ).toString() ==
+                         model2->data( model2->index(rowmodel2, shaColumn, QModelIndex()) ).toString() &&
+                         model1->data( model1->index(rowmodel1, fileNameColumn, QModelIndex()) ).toString() ==
+                         model2->data( model2->index(rowmodel2, fileNameColumn, QModelIndex()) ).toString() &&
+                        ( model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt() >
+                          model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() - 100 &&
+                          model1->data( model1->index(rowmodel1, lineColumn, QModelIndex()) ).toInt() <
+                          model2->data( model2->index(rowmodel2, lineColumn, QModelIndex()) ).toInt() + 100)
+                          )
+                    {
+                        if (autoMap.contains(rowmodel1)){
+                            //TODO: Check if we have a closer match
+                        } else {
+                            autoMap[rowmodel1] = rowmodel2;
 
+                        }
                     }
                 }
             }
         }
-    }
-    int i = 0, myRGB = 150;
-    foreach (int k, autoMap.keys()) {
-//        qDebug() << "Key:" << k << "Value:" << autoMap[k];
-        if (i%2 == 0)
-            myRGB = 230;
-        else
-            myRGB = 160;
-        model1->setData( model1->index(k, fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
-        model2->setData( model2->index(autoMap[k], fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
-        i++;
-    }
-*/
+        int i = 0, myRGB = 150;
+        foreach (int k, autoMap.keys()) {
+    //        qDebug() << "Key:" << k << "Value:" << autoMap[k];
+            if (i%2 == 0)
+                myRGB = 230;
+            else
+                myRGB = 160;
+            model1->setData( model1->index(k, fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
+            model2->setData( model2->index(autoMap[k], fileNameColumn, QModelIndex()), QVariant(QBrush(qRgb(myRGB,myRGB,myRGB))), Qt::BackgroundRole );
+            i++;
+        }
+    */
 }
 
-static void reportForId(QTextStream &ostr, const QList<ResultsData::Line> &list, const QString id) {
+static void reportForId(QTextStream &ostr, const QList<ResultsData::Line> &list, const QString id)
+{
     unsigned int tp = 0;
     unsigned int fp = 0;
     foreach (const ResultsData::Line &warning, list) {
@@ -347,7 +354,8 @@ static void reportForId(QTextStream &ostr, const QList<ResultsData::Line> &list,
     ostr << ResultsData::getErrorGroup(id) << '\t' << id << '\t' << tp << '\t' << fp << '\n';
 }
 
-void diffDialog::report() {
+void diffDialog::report()
+{
     QMap<int,QString> warnings;
     // Conversion
     warnings[542] = "Wbitfield-constant-conversion";

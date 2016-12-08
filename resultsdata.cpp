@@ -11,11 +11,13 @@ ResultsData::ResultsData(const QString &fileName)
     load(fileName);
 }
 
-ResultsData::~ResultsData() {
+ResultsData::~ResultsData()
+{
     delete model;
 }
 
-bool ResultsData::load(const QString &fileName) {
+bool ResultsData::load(const QString &fileName)
+{
     QFile f(fileName);
     if (!f.open(QIODevice::ReadOnly))
         return false;
@@ -117,8 +119,7 @@ void ResultsData::writeDataToModel()
     model->setHeaderData(3, Qt::Horizontal, "ID");
     model->setHeaderData(4, Qt::Horizontal, "Triage");
 
-    for ( int row = 0; row < list.size(); ++row )
-    {
+    for (int row = 0; row < list.size(); ++row) {
         QModelIndex index;
         int col = 0;
         //index = model->index(row, col++, QModelIndex());
@@ -155,7 +156,8 @@ void ResultsData::syncFileNames(ResultsData *rd1, ResultsData *rd2)
     rd2->writeDataToModel();
 }
 
-QString ResultsData::getErrorGroup(QString id) {
+QString ResultsData::getErrorGroup(QString id)
+{
     if (id.contains("clang-analyzer-alpha.Conversion") ||
         id.contains("clang-analyzer-core.Conversion") ||
         id.contains("Wundefined-fixed-cast") ||
@@ -165,37 +167,31 @@ QString ResultsData::getErrorGroup(QString id) {
         id.contains("Wshift-count-overflow") ||
         id.contains("Winteger-overflow") ||
         id.contains("Wconstant-conversion") ||
-        id == "542" || id == "569" || id == "570" || id == "572" || id == "573" || id == "574" || id == "648")
-    {
+        id == "542" || id == "569" || id == "570" || id == "572" || id == "573" || id == "574" || id == "648") {
         return "Conversion";
     }
 
     if (id.contains("Wimplicit-function-declaration") ||
         id.contains("Wmissing-declarations") ||
-        id == "746")
-    {
+        id == "746") {
         return "Declaration Not Found";
     }
 
     if (id.contains("Wshift-op-parentheses") ||
         id.contains("Wparentheses") ||
-        id == "504")
-    {
+        id == "504") {
         return "Parentheses";
     }
 
-    if (id.contains("Wmacro-redefined") || id == "760")
-    {
+    if (id.contains("Wmacro-redefined") || id == "760") {
         return "Redefined Macro";
     }
 
-    if (id.contains("readability-redundant-declaration") || id == "762" || id == "770")
-    {
+    if (id.contains("readability-redundant-declaration") || id == "762" || id == "770") {
         return "Redundant Declaration";
     }
 
-    if (id.contains("Wshadow") || id == "578")
-    {
+    if (id.contains("Wshadow") || id == "578") {
         return "Shadow";
     }
 
@@ -206,25 +202,21 @@ QString ResultsData::getErrorGroup(QString id) {
         id == "530" ||
         id == "603" ||
         id == "771" ||
-        id == "772")
-    {
+        id == "772") {
         return "Uninitialized";
     }
 
-    if (id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") || id == "527")
-    {
+    if (id.contains("clang-analyzer-alpha.deadcode.UnreachableCode") || id == "527") {
         return "Unreachable Code";
     }
 
-    if (id.contains("Wunused-macro") || id == "750")
-    {
+    if (id.contains("Wunused-macro") || id == "750") {
         return "Unused Macro";
     }
 
     if (id.contains("Wunused-variable") ||
         id == "551" ||
-        id == "752")
-    {
+        id == "752") {
         return "Unused Symbol";
     }
 
@@ -262,15 +254,15 @@ QList<ResultsData::Line> ResultsData::getResultsToExport(const QString errorGrou
     return ret;
 }
 
-static bool lessThan(const ResultsData::Line &line1, const ResultsData::Line &line2) {
+static bool lessThan(const ResultsData::Line &line1, const ResultsData::Line &line2)
+{
     if (line1.filename != line2.filename)
         return line1.filename < line2.filename;
     if (line1.id != line2.id)
         return line1.id < line2.id;
     if (line1.text != line2.text)
         return line1.text < line2.text;
-    if (line1.column != line2.column)
-    {
+    if (line1.column != line2.column) {
         bool ok1(false);
         bool ok2(false);
         int c1 = line1.column.toInt(&ok1);
@@ -315,8 +307,7 @@ void ResultsData::removeDuplicates()
         else if (list[i+1].triage.isEmpty()) {
             list.removeAt(i + 1);
             i--;
-        }
-        else if (list[i].triage == list[i+1].triage)
+        } else if (list[i].triage == list[i+1].triage)
             list.removeAt(i--);
     }
 }
