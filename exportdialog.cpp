@@ -79,7 +79,11 @@ void ExportDialog::on_pushButton_clicked()
 
     QTextStream outStream(&f);
 
-    if (ui->checkBox->isChecked())
+    /* Check if the export is intended for excel, and if so use '#' as separator instead of ':' */
+    const bool forExcel = ui->exportForExcel->isChecked();
+    const char separator = forExcel ? '#' : ':';
+
+    if (forExcel)
     {
         /* Excel format.
          * Add header line
@@ -89,24 +93,15 @@ void ExportDialog::on_pushButton_clicked()
 
     foreach (const ResultsData::Line &line, resultsToExport)
     {
-        /* Use # if export for excel and : if not */
-        char separator = ui->checkBox->isChecked() ? '#' : ':';
-
-        if (!line.sha.isEmpty())
-        {
+        if (!line.sha.isEmpty() || forExcel)
             outStream << line.sha << separator;
-        }
-        else if (ui->checkBox->isChecked())
-        {
-            outStream << separator;
-        }
         outStream << line.filename << separator;
         outStream << line.line << separator;
-        if (!line.column.isEmpty() || ui->checkBox->isChecked())
+        if (!line.column.isEmpty() || forExcel)
             outStream << line.column << separator;
         outStream << line.severity << separator;
         outStream << line.text;
-        if (!ui->checkBox->isChecked())
+        if (!forExcel)
         {
             /* Text output */
             outStream << " [" << line.id << ']';
@@ -116,11 +111,11 @@ void ExportDialog::on_pushButton_clicked()
             /* Excel output */
             outStream << separator << "[" << line.id << ']' << separator;
         }
-        if (!line.triage.isEmpty() && !ui->checkBox->isChecked())
+        if (!line.triage.isEmpty() && !forExcel)
         {
             outStream << '\n' << line.triage;
         }
-        else if (ui->checkBox->isChecked())
+        else if (forExcel)
         {
             outStream << line.triage;
         }

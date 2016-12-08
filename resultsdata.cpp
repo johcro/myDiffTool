@@ -157,15 +157,21 @@ void ResultsData::syncFileNames(ResultsData *rd1, ResultsData *rd2)
 
 QString ResultsData::getErrorGroup(QString id) {
     if (id.contains("clang-analyzer-alpha.Conversion") ||
-        id.contains("clang-analyzer-core.Conversion") ||
-        id.contains("Wundefined-fixed-cast") ||
-        id.contains("Wfixed-literal-promotion") ||
-        id.contains("Wbitfield-constant-conversion") ||
-        id.contains("Wshift-overflow") ||
-        id.contains("Wshift-count-overflow") ||
-        id.contains("Winteger-overflow") ||
-        id.contains("Wconstant-conversion") ||
-        id == "542" || id == "569" || id == "570" || id == "572" || id == "573" || id == "574" || id == "648")
+            id.contains("clang-analyzer-core.Conversion") ||
+            id.contains("Wundefined-fixed-cast") ||
+            id.contains("Wfixed-literal-promotion") ||
+            id.contains("Wbitfield-constant-conversion") ||
+            id.contains("Wshift-overflow") ||
+            id.contains("Wshift-count-overflow") ||
+            id.contains("Winteger-overflow") ||
+            id.contains("Wconstant-conversion") ||
+            id == "542" ||
+            id == "569" ||
+            id == "570" ||
+            id == "572" ||
+            id == "573" ||
+            id == "574" ||
+            id == "648")
     {
         return "Conversion";
     }
@@ -178,18 +184,21 @@ QString ResultsData::getErrorGroup(QString id) {
     }
 
     if (id.contains("Wshift-op-parentheses") ||
-        id.contains("Wparentheses") ||
-        id == "504")
+            id.contains("Wparentheses") ||
+            id == "504")
     {
         return "Parentheses";
     }
 
-    if (id.contains("Wmacro-redefined") || id == "760")
+    if (id.contains("Wmacro-redefined") ||
+            id == "760")
     {
         return "Redefined Macro";
     }
 
-    if (id.contains("readability-redundant-declaration") || id == "762" || id == "770")
+    if (id.contains("readability-redundant-declaration") ||
+            id == "762" ||
+            id == "770")
     {
         return "Redundant Declaration";
     }
@@ -201,13 +210,13 @@ QString ResultsData::getErrorGroup(QString id) {
     }
 
     if (id.contains("Wuninitialized") ||
-        id.contains("clang-analyzer-core.uninitialized.Assign") ||
-        id.contains("clang-analyzer-core.CallAndMessage") ||
-        id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
-        id == "530" ||
-        id == "603" ||
-        id == "771" ||
-        id == "772")
+            id.contains("clang-analyzer-core.uninitialized.Assign") ||
+            id.contains("clang-analyzer-core.CallAndMessage") ||
+            id.contains("clang-analyzer-core.UndefinedBinaryOperatorResult") ||
+            id == "530" ||
+            id == "603" ||
+            id == "771" ||
+            id == "772")
     {
         return "Uninitialized";
     }
@@ -225,8 +234,8 @@ QString ResultsData::getErrorGroup(QString id) {
     }
 
     if (id.contains("Wunused-variable") ||
-        id == "551" ||
-        id == "752")
+            id == "551" ||
+            id == "752")
     {
         return "Unused Symbol";
     }
@@ -348,4 +357,3 @@ QString ResultsData::report() const
     }
     return ret;
 }
-

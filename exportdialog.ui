@@ -103,7 +103,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="exportForExcel">
          <property name="text">
           <string>Export for Excel</string>
          </property>
