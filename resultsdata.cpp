@@ -177,14 +177,16 @@ QString ResultsData::getErrorGroup(QString id)
         return "Declaration Not Found";
     }
 
+    if (id.contains("Wmacro-redefined") || id.contains("Wunused-macro") ||
+        id == "750" || id == "760") {
+        return "Macro";
+    }
+
+
     if (id.contains("Wshift-op-parentheses") ||
         id.contains("Wparentheses") ||
         id == "504") {
         return "Parentheses";
-    }
-
-    if (id.contains("Wmacro-redefined") || id == "760") {
-        return "Redefined Macro";
     }
 
     if (id.contains("readability-redundant-declaration") || id == "762" || id == "770") {
@@ -210,10 +212,6 @@ QString ResultsData::getErrorGroup(QString id)
         return "Unreachable Code";
     }
 
-    if (id.contains("Wunused-macro") || id == "750") {
-        return "Unused Macro";
-    }
-
     if (id.contains("Wunused-variable") ||
         id == "551" ||
         id == "752") {
@@ -228,13 +226,12 @@ QStringList ResultsData::getErrorGroupList()
     QStringList ret;
     ret.append("Conversion");
     ret.append("Declaration Not Found");
+    ret.append("Macro");
     ret.append("Parentheses");
-    ret.append("Redefined Macro");
     ret.append("Redundant Declaration");
     ret.append("Shadow");
     ret.append("Uninitialized");
     ret.append("Unreachable Code");
-    ret.append("Unused Macro");
     ret.append("Unused Symbol");
     return ret;
 }
