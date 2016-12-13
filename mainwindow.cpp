@@ -31,16 +31,15 @@ void MainWindow::on_pushButton__file2_clicked()
 
 void MainWindow::on_actionClear_all_triggered()
 {
-    foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
+    foreach (QLineEdit* le, findChildren<QLineEdit*>()) {
         le->clear();
     }
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-    foreach(QLineEdit* le, findChildren<QLineEdit*>()) {
-        if (le->text().isEmpty())
-        {
+    foreach (QLineEdit* le, findChildren<QLineEdit*>()) {
+        if (le->text().isEmpty()) {
             QMessageBox::information(this, tr("Not valid"), tr("Please fill in two file paths."));
             return;
         }

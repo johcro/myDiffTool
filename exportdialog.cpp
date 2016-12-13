@@ -42,16 +42,11 @@ void ExportDialog::on_pushButton_clicked()
     QList<ResultsData::Line> resultsToExport;
 
     /* Setup which tool output to export */
-    if (whichTool == TOOL_CLANG)
-    {
+    if (whichTool == TOOL_CLANG) {
         resultsToExport = clangData.getResultsToExport(errorGroup);
-    }
-    else if (whichTool == TOOL_LINT)
-    {
+    } else if (whichTool == TOOL_LINT) {
         resultsToExport = lintData.getResultsToExport(errorGroup);
-    }
-    else
-    {
+    } else {
         /* No tool selected */
         QMessageBox::information(this, tr("Warning"), tr("No tool was selected!"));
         return;
@@ -64,15 +59,13 @@ void ExportDialog::on_pushButton_clicked()
 
     QString defaultResultFile = QDir::homePath() + "/" + whichTool + "-" + errorGroup + " Warnings" ;
     QString resFileName = QFileDialog::getSaveFileName(this, tr("Save export as"), defaultResultFile, tr("Text Files (*.txt)"));
-    if ( resFileName.isEmpty() )
-    {
+    if (resFileName.isEmpty()) {
         QMessageBox::information(this, tr("Warning"), tr("No export filename selected!"));
         return;
     }
 
     QFile f(resFileName);
-    if (!f.open(QFile::WriteOnly | QFile::Text))
-    {
+    if (!f.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::information(this, tr("Error"), tr("Failed to open export file for writing!"));
         return;
     }
@@ -83,16 +76,14 @@ void ExportDialog::on_pushButton_clicked()
     const bool forExcel = ui->exportForExcel->isChecked();
     const char separator = forExcel ? '#' : ':';
 
-    if (forExcel)
-    {
+    if (forExcel) {
         /* Excel format.
          * Add header line
          */
         outStream << "Sha#Path#Line#Column#Severity#Text#ID#Triage\n";
     }
 
-    foreach (const ResultsData::Line &line, resultsToExport)
-    {
+    foreach (const ResultsData::Line &line, resultsToExport) {
         if (!line.sha.isEmpty() || forExcel)
             outStream << line.sha << separator;
         outStream << line.filename << separator;
@@ -101,22 +92,16 @@ void ExportDialog::on_pushButton_clicked()
             outStream << line.column << separator;
         outStream << line.severity << separator;
         outStream << line.text;
-        if (!forExcel)
-        {
+        if (!forExcel) {
             /* Text output */
             outStream << " [" << line.id << ']';
-        }
-        else
-        {
+        } else {
             /* Excel output */
             outStream << separator << "[" << line.id << ']' << separator;
         }
-        if (!line.triage.isEmpty() && !forExcel)
-        {
+        if (!line.triage.isEmpty() && !forExcel) {
             outStream << '\n' << line.triage;
-        }
-        else if (forExcel)
-        {
+        } else if (forExcel) {
             outStream << line.triage;
         }
         outStream << '\n';

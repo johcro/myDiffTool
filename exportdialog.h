@@ -6,11 +6,10 @@
 #include "resultsdata.h"
 
 namespace Ui {
-class ExportDialog;
+    class ExportDialog;
 }
 
-class ExportDialog : public QDialog
-{
+class ExportDialog : public QDialog {
     Q_OBJECT
 
 public:

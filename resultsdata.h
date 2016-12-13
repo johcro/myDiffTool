@@ -6,8 +6,7 @@
 
 class QStandardItemModel;
 
-class ResultsData
-{
+class ResultsData {
 public:
     ResultsData(const QString &filename);
     ~ResultsData();
@@ -42,13 +41,27 @@ public:
 
     QString report() const;
 
-    static int getShaColumn() { return -1; }
-    static int getFilenameColumn() { return 0; }
-    static int getLineColumn() { return 1; }
-    static int getSeverityColumn() { return -1; }
-    static int getTextColumn() { return 2; }
-    static int getIdColumn() { return 3; }
-    static int getTriageColumn() { return 4; }
+    static int getShaColumn() {
+        return -1;
+    }
+    static int getFilenameColumn() {
+        return 0;
+    }
+    static int getLineColumn() {
+        return 1;
+    }
+    static int getSeverityColumn() {
+        return -1;
+    }
+    static int getTextColumn() {
+        return 2;
+    }
+    static int getIdColumn() {
+        return 3;
+    }
+    static int getTriageColumn() {
+        return 4;
+    }
 };
 
 #endif // RESULTSDATA_H

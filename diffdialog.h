@@ -17,13 +17,12 @@
 #include <QProcess>
 
 namespace Ui {
-class diffDialog;
+    class diffDialog;
 }
 
 class ResultsData;
 
-class Highlighter : public QSyntaxHighlighter
-{
+class Highlighter : public QSyntaxHighlighter {
     Q_OBJECT
 
 public:
@@ -33,8 +32,7 @@ protected:
     void highlightBlock(const QString &text) /*Q_DECL_OVERRIDE*/;
 
 private:
-    struct HighlightingRule
-    {
+    struct HighlightingRule {
         QRegExp pattern;
         QTextCharFormat format;
     };
@@ -52,8 +50,7 @@ private:
     QTextCharFormat functionFormat;
 };
 
-class diffDialog : public QDialog
-{
+class diffDialog : public QDialog {
     Q_OBJECT
 
 public:

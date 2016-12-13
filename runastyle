@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ASTYLE="astyle"
+
+style="--style=stroustrup --indent=spaces=4 --indent-namespaces --lineend=linux --min-conditional-indent=0"
+options="--options=none --pad-header --unpad-paren --suffix=none --convert-tabs --attach-inlines"
+
+$ASTYLE $style $options *.cpp
+$ASTYLE $style $options *.h
